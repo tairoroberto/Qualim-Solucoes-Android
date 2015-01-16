@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Qualim Soluções</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="txtCkLembrar">Lembrar minha senha</string>
+    <string name="btnEntarLogin">Login</string>
+    <string name="btnRegistrarLogin">Resgistrar-se</string>
+    <string name="txtSenhaLogin">Senha</string>
+    <string name="txtUsuarioLogin">Usuário</string>
+    <string name="txtMensagemLogin">Insira usuário e senha</string>
+    <string name="action_search">Buscar</string>
+
+    <!-- Arrays preenchidos para serem mostrados nos fragments -->
+    <string-array name="telas_array">
+        <item>Home</item>
+        <item>Cronograma</item>
+        <item>Relatórios</item>
+        <item>Prestação de contas</item>
+    </string-array>
+
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_websearch">Web search</string>
+    <string name="app_not_available">Sorry, there\'s no web browser available</string>
+    <string name="title_activity_principal">PrincipalActivity</string>
+
+</resources>

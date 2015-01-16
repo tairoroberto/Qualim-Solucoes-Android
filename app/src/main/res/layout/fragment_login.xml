@@ -1,0 +1,133 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativePaiFragment"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="#000000"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/relativeFragment2"
+        android:layout_width="wrap_content"
+        android:layout_height="180dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" >
+
+        <CheckBox
+            android:id="@+id/chLembrarFragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/txtCkLembrar"
+            android:textColor="#DC143C"
+            android:layout_below="@+id/edtSenhaLogin"
+            android:layout_toRightOf="@+id/textView2"
+            android:layout_toEndOf="@+id/textView2" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/linearLayout">
+
+
+
+            <Button
+                android:id="@+id/btnLoginFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/botao_vermelho"
+                android:fontFamily="serif"
+                android:text="Login"
+                android:textSize="25sp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_weight="1" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent" />
+
+            <Button
+                android:id="@+id/btnSairFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/botao_vermelho"
+                android:fontFamily="serif"
+                android:text="Sair"
+                android:textSize="25sp"
+                android:layout_toRightOf="@+id/chLembrarFragment"
+                android:layout_toEndOf="@+id/chLembrarFragment"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/edtSenhaLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/textView1"
+            android:ems="10"
+            android:fontFamily="serif"
+            android:inputType="textPassword"
+            android:textColor="#DC143C"
+            android:textSize="22sp"
+            android:hint="@string/txtSenhaLogin"
+            android:textColorHint="#ffffff"
+            android:gravity="center"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true">
+
+
+        </EditText>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textColor="#32c904"
+            android:layout_below="@+id/chLembrarFragment"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/edtUsuarioLogin"
+            android:gravity="center_horizontal"
+            android:textColor="#32c904" />
+
+        <EditText
+            android:id="@+id/edtUsuarioLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:fontFamily="serif"
+            android:gravity="center"
+            android:hint="@string/txtUsuarioLogin"
+            android:inputType="textPersonName"
+            android:textColor="#DC143C"
+            android:textColorHint="#ffffff"
+            android:textSize="22sp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+
+            <requestFocus />
+        </EditText>
+
+    </RelativeLayout>
+
+</RelativeLayout>
