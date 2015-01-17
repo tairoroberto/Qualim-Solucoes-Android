@@ -11,16 +11,22 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.SearchView.OnQueryTextListener;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class PrincipalActivity extends ActionBarActivity{
+import java.util.Locale;
+
+public class RelatoriosActivity extends ActionBarActivity{
 
 
     private DrawerLayout mDrawerLayout;
@@ -39,25 +45,12 @@ public class PrincipalActivity extends ActionBarActivity{
 
         // Coloca um efeito antes de mostrar a tela principal
         overridePendingTransition(R.anim.push_right_enter,R.anim.push_left_exit);
-        setContentView(R.layout.activity_principal);
+        setContentView(R.layout.activity_relatorios);
 
         // mostra o logo do app na actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-
-        //Verifica se foi enviado acão de sair
-        Intent intent = getIntent();
-        if (intent != null){
-
-            Bundle bundle = intent.getExtras();
-            if (bundle != null){
-                boolean sair = bundle.getBoolean("sair");
-                if (sair == true){
-                    PrincipalActivity.this.finish();
-                }
-            }
-        }
 
         mTitle = mDrawerTitle = getTitle();
         //Pega um array de String para colocar no drawer
@@ -76,13 +69,13 @@ public class PrincipalActivity extends ActionBarActivity{
 
         //Configura a lista do Drawer com os items do array e seta o evento de clique da lista
         //configura a lista da direita e esqueda do Drawer
-        mDrawerList_left.setAdapter(new ArrayAdapter<String>(PrincipalActivity.this, R.layout.drawer_lista_items, mTelasTitles));
+        mDrawerList_left.setAdapter(new ArrayAdapter<String>(RelatoriosActivity.this, R.layout.drawer_lista_items, mTelasTitles));
         mDrawerList_left.setOnItemClickListener(new DrawerItemClickListenerLeft());
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
-                PrincipalActivity.this,    /* Classe que chama a activity Activity */
+                RelatoriosActivity.this,    /* Classe que chama a activity Activity */
                 mDrawerLayout,         /* Layout que será mostrado DrawerLayout  */
                 R.drawable.ic_drawer,  /* Icone que aparecera na ActionBar */
                 R.string.drawer_open){ /* Descrição */
@@ -101,7 +94,7 @@ public class PrincipalActivity extends ActionBarActivity{
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (savedInstanceState == null) {
-            selectItemLeft(0);
+           // selectItemLeft(0);
         }
 
     }
@@ -109,7 +102,7 @@ public class PrincipalActivity extends ActionBarActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_principal, menu);
+        inflater.inflate(R.menu.menu_relatorios, menu);
 
         //Implementa o SearchView
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -119,7 +112,7 @@ public class PrincipalActivity extends ActionBarActivity{
     }
 
     //Classe de busca do SearchView
-    private class SearchFiltro implements OnQueryTextListener{
+    private class SearchFiltro implements SearchView.OnQueryTextListener {
 
         @Override
         public boolean onQueryTextChange(String query) {
@@ -139,7 +132,7 @@ public class PrincipalActivity extends ActionBarActivity{
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(PrincipalActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
+                Toast.makeText(RelatoriosActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
             }
             return false;
         }
@@ -165,6 +158,11 @@ public class PrincipalActivity extends ActionBarActivity{
         // Manipula as ações dos botões
         switch(item.getItemId()) {
             case R.id.action_exit:
+                Intent intent = new Intent(this,PrincipalActivity.class);
+                //tira todas as atividades da pilha e vai para a home
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("sair",true);
+                startActivity(intent);
 
                 return true;
             default:
@@ -190,18 +188,18 @@ public class PrincipalActivity extends ActionBarActivity{
 
         if (position == 0) {//Shows
 
-            /*Intent intent = new Intent(PrincipalActivity.this,EventosActivity.class);
-            startActivity(intent);*/
+            Intent intent = new Intent(RelatoriosActivity.this,PrincipalActivity.class);
+            startActivity(intent);
 
         } else if (position == 1) {
-            Intent intent = new Intent(PrincipalActivity.this,CronogramaActivity.class);
+            Intent intent = new Intent(RelatoriosActivity.this,CronogramaActivity.class);
             startActivity(intent);
 
         } else if (position == 2) {
-            Intent intent = new Intent(PrincipalActivity.this,RelatoriosActivity.class);
-            startActivity(intent);
+            /*Intent intent = new Intent(RelatoriosActivity.this,RelatoriosActivity.class);
+            startActivity(intent);*/
         }else if (position == 3) {
-            Intent intent = new Intent(PrincipalActivity.this,PrestacaoContasActivity.class);
+            Intent intent = new Intent(RelatoriosActivity.this,PrestacaoContasActivity.class);
             startActivity(intent);
         }
 
@@ -236,3 +234,4 @@ public class PrincipalActivity extends ActionBarActivity{
     }
 
 }
+
