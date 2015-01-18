@@ -14,22 +14,18 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import br.com.tairoroberto.qualimsolucoes.Usuario;
-
 public class HttpConnection {
-	public static String getSetDataWeb(String email,String password,String url){
+	public static String getSetDataWeb(String url, ArrayList<NameValuePair> valores){
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost(url);
 		String answer = "";
 
 		try{
-			ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
-			valores.add(new BasicNameValuePair("email", email));
-			valores.add(new BasicNameValuePair("password", password));
 
 			httpPost.setEntity(new UrlEncodedFormEntity(valores));
 			HttpResponse resposta = httpClient.execute(httpPost);
 			answer = EntityUtils.toString(resposta.getEntity());
+
 		}
 		catch (UnsupportedEncodingException e) { e.printStackTrace(); }
 		catch (ClientProtocolException e) { e.printStackTrace(); }

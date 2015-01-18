@@ -2,6 +2,7 @@ package br.com.tairoroberto.qualimsolucoes;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +13,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
 
 import br.com.tairoroberto.util.HttpConnection;
 
@@ -24,9 +30,9 @@ public class InicialActivity extends Activity {
     private Button btnLoginFragment,btnSairFragment, btnLogin_inicial,btnCadastro_inicial;
     private CheckBox ckRememberFragment;
     private ViewFlipper img1,img2,img3,img4,img5,img6;
-    private Usuario usuario;
+    private UsuarioLogado usuarioLogado;
     private String answer;
-    private boolean verifyResposta = false;
+    ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +40,7 @@ public class InicialActivity extends Activity {
 
         overridePendingTransition(R.anim.slide_up, R.anim.slide_down);
         setContentView(R.layout.activity_principal);
-        usuario = new Usuario();
+        usuarioLogado = new UsuarioLogado();
 
         chamaLogin();
     }
@@ -84,7 +90,7 @@ public class InicialActivity extends Activity {
             public void onClick(View v) {
 
                 //Enviaa requisição para o servidor
-                sendLogin(edtUsuarioLogin.getText().toString(),edtSenhaLogin.getText().toString());
+                sendLogin(edtUsuarioLogin.getText().toString(),edtSenhaLogin.getText().toString(),dialog);
             }
         });
 
@@ -100,32 +106,50 @@ public class InicialActivity extends Activity {
 
     }
 
-    public boolean sendLogin(final String email,final String password){
+    public void sendLogin(final String email,final String password, final Dialog dialog){
+        progress = new ProgressDialog(InicialActivity.this);
+        progress.setMessage("Carregando...");
+        progress.show();
 
         final String url = "http://www.nowsolucoes.com.br/qualim/public/login-android";
 
         new Thread(){
             public void run(){
-                answer = HttpConnection.getSetDataWeb(email,password, url);
+
+                ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+                valores.add(new BasicNameValuePair("email", email));
+                valores.add(new BasicNameValuePair("password", password));
+
+                answer = HttpConnection.getSetDataWeb(url, valores);
 
                 runOnUiThread(new Runnable(){
                     public void run(){
                         try{
-                            //String resposta[] = answer.split(",");
-                           // Toast.makeText(InicialActivity.this, answer, Toast.LENGTH_SHORT).show();
-                            Log.i("Script","Resposta: "+answer);
-
                             if (answer != null){
-                                verifyResposta = true;
-
                                 if (!answer.equals("Login incorreto")){
+
+                                    progress.dismiss();
+                                    //Log.i("Script","Resposta: "+answer);
+
+                                    String resposta[] = answer.split(",");
+                                    usuarioLogado.setId(Long.parseLong(resposta[0]));
+                                    usuarioLogado.setName(resposta[1]);
+                                    usuarioLogado.setEmail(resposta[2]);
+
+                                    /*//ArrayList de Usuarios logados para ser enviado
+                                    ArrayList<UsuarioLogado> usuarioLogados = new ArrayList<UsuarioLogado>();
+                                    usuarioLogados.add(usuarioLogado);*/
+
                                     Intent intent = new Intent();
                                     intent.setClass(InicialActivity.this, PrincipalActivity.class);
-
+                                    intent.putExtra("usuarioLogado",usuarioLogado);
                                     overridePendingTransition(R.anim.push_down_enter, R.anim.push_down_exit);
                                     startActivity(intent);
+                                    dialog.dismiss();
                                     InicialActivity.this.finish();
+
                                 }else{
+                                    progress.dismiss();
                                     Toast.makeText(InicialActivity.this, "Login ou Senha inválido", Toast.LENGTH_SHORT).show();
                                 }
                             }
@@ -135,8 +159,5 @@ public class InicialActivity extends Activity {
                 });
             }
         }.start();
-        return verifyResposta;
     }
-
-
 }
