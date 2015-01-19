@@ -1,47 +1,38 @@
 package br.com.tairoroberto.qualimsolucoes;
 
-import android.app.ProgressDialog;
-import android.app.SearchManager;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.SearchView;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.CalendarView;
-import android.widget.ExpandableListView;
-import android.widget.GridView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+        import android.app.ProgressDialog;
+        import android.app.SearchManager;
+        import android.content.Intent;
+        import android.content.res.Configuration;
+        import android.os.Bundle;
+        import android.support.v4.view.GravityCompat;
+        import android.support.v4.widget.DrawerLayout;
+        import android.support.v7.app.ActionBar;
+        import android.support.v7.app.ActionBarActivity;
+        import android.support.v7.app.ActionBarDrawerToggle;
+        import android.support.v7.widget.SearchView;
+        import android.util.Log;
+        import android.view.Menu;
+        import android.view.MenuInflater;
+        import android.view.MenuItem;
+        import android.view.View;
+        import android.widget.Button;
+        import android.widget.EditText;
+        import android.widget.ExpandableListView;
+        import android.widget.TextView;
+        import android.widget.Toast;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+        import org.apache.http.NameValuePair;
+        import org.apache.http.message.BasicNameValuePair;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+        import java.util.ArrayList;
+        import java.util.regex.Matcher;
+        import java.util.regex.Pattern;
 
-import br.com.tairoroberto.adapters.AdapterExpListview;
-import br.com.tairoroberto.adapters.CalendarAdapter;
-import br.com.tairoroberto.util.HttpConnection;
-import br.com.tairoroberto.util.Utility;
+        import br.com.tairoroberto.adapters.AdapterExpListview;
+        import br.com.tairoroberto.util.HttpConnection;
 
-public class CronogramaActivity extends ActionBarActivity{
+public class PrestacaoContasInserirActivity extends ActionBarActivity{
 
 
     private DrawerLayout mDrawerLayout;
@@ -53,23 +44,23 @@ public class CronogramaActivity extends ActionBarActivity{
     private String answer;
     private SearchView searchView;
     private UsuarioLogado usuarioLogado;
-    private CalendarView calendar;
+    private final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
+    private Pattern pattern;
+    private Matcher matcher;
 
-    /******************************************************************/
-    /**        inicio da Variáveis do calendario                     */
-    /****************************************************************/
+    /**************************************************************************************/
+    /**                      Variáveis do layout de prestação de contas                  */
+    /************************************************************************************/
+    private EditText edtCliente;
+    private EditText edtHorarioEntrada;
+    private EditText edtHorarioSaida;
+    private EditText edtValeRefeicao;
+    private EditText edtDescValeTransporte;
+    private EditText edtSomaValeTrasnporte;
+    private EditText edtDescGastoExtra;
+    private EditText edtValorGastoExtra;
 
-    public GregorianCalendar month, itemmonth;// calendar instances.
 
-    public CalendarAdapter adapter;// adapter instance
-    public Handler handler;// for grabbing some event values for showing the dot
-    // marker.
-    public ArrayList<String> items; // container to store calendar items which
-    // needs showing the event marker
-    ArrayList<String> event;
-    LinearLayout rLayout;
-    ArrayList<String> date;
-    ArrayList<String> desc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,13 +68,13 @@ public class CronogramaActivity extends ActionBarActivity{
         super.onCreate(savedInstanceState);
 
         // Coloca um efeito antes de mostrar a tela principal
-        overridePendingTransition(R.anim.push_left_enter,R.anim.push_right_exit);
-        setContentView(R.layout.activity_cronograma);
+        overridePendingTransition(R.anim.slide_up,R.anim.slide_down);
+        setContentView(R.layout.activity_prestacao_contas_inserir);
 
         // mostra o logo do app na actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Cronograma");
+        actionBar.setTitle("Inserir despesa");
 
         //Verifica se foi enviado acão de sair
         Intent intent = getIntent();
@@ -98,107 +89,72 @@ public class CronogramaActivity extends ActionBarActivity{
         /****************************************************************************************/
         /**                     ligacção das variaveis do java com as do Xml                   */
         /**************************************************************************************/
-        //calendar = (CalendarView) findViewById(R.id.calendarView);
-        Locale.setDefault(Locale.US);
+        edtCliente = (EditText) findViewById(R.id.edtCliente);
+        edtHorarioEntrada = (EditText) findViewById(R.id.edtHorarioEntrada);
+        edtHorarioSaida = (EditText) findViewById(R.id.edtHorarioSaida);
+        edtValeRefeicao = (EditText) findViewById(R.id.edtValeRefeicao);
+        edtDescValeTransporte = (EditText) findViewById(R.id.edtDescValeTransporte);
+        edtSomaValeTrasnporte = (EditText) findViewById(R.id.somaValeTrasnporte);
+        edtDescGastoExtra = (EditText) findViewById(R.id.edtDescGastoExtra);
+        edtValorGastoExtra = (EditText) findViewById(R.id.edtValorGastoExtra);
 
-        rLayout = (LinearLayout) findViewById(R.id.text);
-        month = (GregorianCalendar) GregorianCalendar.getInstance();
-        itemmonth = (GregorianCalendar) month.clone();
 
-        items = new ArrayList<String>();
+        Button btnCadastrarDespesa = (Button)findViewById(R.id.btnCadastrarDespesa);
 
-        adapter = new CalendarAdapter(this, month);
 
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        gridview.setAdapter(adapter);
-
-        handler = new Handler();
-        handler.post(calendarUpdater);
-
-        TextView title = (TextView) findViewById(R.id.title);
-        title.setText(android.text.format.DateFormat.format("MMMM yyyy", month));
-
-        RelativeLayout previous = (RelativeLayout) findViewById(R.id.previous);
-
-        previous.setOnClickListener(new View.OnClickListener() {
-
+        btnCadastrarDespesa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setPreviousMonth();
-                refreshCalendar();
+                //ArrayList que será enviado para cadastrar a despesa
+                ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+
+                //Validações para realizar o cadastro
+                if (edtCliente.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira o Cliente/Local",Toast.LENGTH_SHORT).show();
+                    edtCliente.requestFocus();
+                }else if (edtHorarioEntrada.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira o horário de entrada",Toast.LENGTH_SHORT).show();
+                    edtHorarioEntrada.requestFocus();
+                }else if (!validate(edtHorarioEntrada.getText().toString())){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Formato do horário de entrada incorreto",Toast.LENGTH_SHORT).show();
+                    edtHorarioEntrada.requestFocus();
+                }else if (edtHorarioSaida.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira o horário de saída",Toast.LENGTH_SHORT).show();
+                    edtHorarioSaida.requestFocus();
+                }else if (!validate(edtHorarioSaida.getText().toString())){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Formato do horário de saída incorreto",Toast.LENGTH_SHORT).show();
+                    edtHorarioSaida.requestFocus();
+                }else if (edtValeRefeicao.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira o valor do vale-refeição",Toast.LENGTH_SHORT).show();
+                    edtValeRefeicao.requestFocus();
+                }else if (edtDescValeTransporte.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira a descrição do vale-transporte",Toast.LENGTH_SHORT).show();
+                    edtDescValeTransporte.requestFocus();
+                }else if (edtSomaValeTrasnporte.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira a soma do vale-transporte",Toast.LENGTH_SHORT).show();
+                    edtSomaValeTrasnporte.requestFocus();
+                }else if (edtDescGastoExtra.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira a descrição dos gastos extras",Toast.LENGTH_SHORT).show();
+                    edtDescGastoExtra.requestFocus();
+                }else if (edtValorGastoExtra.getText().toString().equals("")){
+                    Toast.makeText(PrestacaoContasInserirActivity.this,"Insira o valor dos gastos extras",Toast.LENGTH_SHORT).show();
+                    edtValorGastoExtra.requestFocus();
+                }else{
+                    //sepassou por todas as validações inseri os valores dos campos em um avariavel NameValuePair e envia para o servidor
+                    valores.add(new BasicNameValuePair("cliente-local", edtCliente.getText().toString()));
+                    valores.add(new BasicNameValuePair("hora-entrada", edtHorarioEntrada.getText().toString()));
+                    valores.add(new BasicNameValuePair("hora-saida", edtHorarioSaida.getText().toString()));
+                    valores.add(new BasicNameValuePair("vale-refeicao", edtValeRefeicao.getText().toString()));
+                    valores.add(new BasicNameValuePair("observacaoValeTransporte", edtDescValeTransporte.getText().toString()));
+                    valores.add(new BasicNameValuePair("vale-transporte", edtSomaValeTrasnporte.getText().toString()));
+                    valores.add(new BasicNameValuePair("observacaoGastoExtra", edtDescGastoExtra.getText().toString()));
+                    valores.add(new BasicNameValuePair("gasto-extra", edtValorGastoExtra.getText().toString()));
+                    valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
+
+                    sendExpense(valores);
+                }
             }
         });
-
-        RelativeLayout next = (RelativeLayout) findViewById(R.id.next);
-        next.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                setNextMonth();
-                refreshCalendar();
-
-            }
-        });
-
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                // removing the previous view if added
-                if (((LinearLayout) rLayout).getChildCount() > 0) {
-                    ((LinearLayout) rLayout).removeAllViews();
-                }
-                desc = new ArrayList<String>();
-                date = new ArrayList<String>();
-                ((CalendarAdapter) parent.getAdapter()).setSelected(v);
-                String selectedGridDate = CalendarAdapter.dayString
-                        .get(position);
-                String[] separatedTime = selectedGridDate.split("-");
-                String gridvalueString = separatedTime[2].replaceFirst("^0*",
-                        "");// taking last part of date. ie; 2 from 2012-12-02.
-                int gridvalue = Integer.parseInt(gridvalueString);
-                // navigate to next or previous month on clicking offdays.
-                if ((gridvalue > 10) && (position < 8)) {
-                    setPreviousMonth();
-                    refreshCalendar();
-                } else if ((gridvalue < 7) && (position > 28)) {
-                    setNextMonth();
-                    refreshCalendar();
-                }
-                ((CalendarAdapter) parent.getAdapter()).setSelected(v);
-
-                for (int i = 0; i < Utility.startDates.size(); i++) {
-                    if (Utility.startDates.get(i).equals(selectedGridDate)) {
-                        desc.add(Utility.nameOfEvent.get(i));
-                    }
-                }
-
-                if (desc.size() > 0) {
-                    for (int i = 0; i < desc.size(); i++) {
-                        TextView rowTextView = new TextView(CronogramaActivity.this);
-
-                        // set some properties of rowTextView or something
-                        rowTextView.setText("Event:" + desc.get(i));
-                        rowTextView.setTextColor(Color.BLACK);
-
-                        // add the textview to the linearlayout
-                        rLayout.addView(rowTextView);
-
-                    }
-
-                }
-
-                desc = null;
-
-            }
-
-        });
-
-        /*************************************************************************************/
-        /**  fim da implementação do calendario*/
-        /***********************************************************************************/
-
-
-
 
 
         /****************************************************************************************/
@@ -222,8 +178,9 @@ public class CronogramaActivity extends ActionBarActivity{
         //Configura a lista do Drawer com os items do array e seta o evento de clique da lista
         //configura a lista da direita e esqueda do Drawer
         mDrawerList_left.setAdapter(new AdapterExpListview(this));
-
         mDrawerList_left.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 //Verifify whacth screen go
@@ -255,7 +212,7 @@ public class CronogramaActivity extends ActionBarActivity{
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
-                CronogramaActivity.this,    /* Classe que chama a activity Activity */
+                PrestacaoContasInserirActivity.this,    /* Classe que chama a activity Activity */
                 mDrawerLayout,         /* Layout que será mostrado DrawerLayout  */
                 R.drawable.ic_drawer,  /* Icone que aparecera na ActionBar */
                 R.string.drawer_open){ /* Descrição */
@@ -279,13 +236,26 @@ public class CronogramaActivity extends ActionBarActivity{
 
     }
 
+
+    /**
+     * Validate time in 24 hours format with regular expression
+     * @param time time address for validation
+     * @return true valid time fromat, false invalid time format
+     */
+    public boolean validate(final String time){
+        pattern = Pattern.compile(TIME24HOURS_PATTERN);
+        matcher = pattern.matcher(time);
+        return matcher.matches();
+    }
+
     /****************************************************************************************/
     /**                               Implementação do Menu                                */
     /**************************************************************************************/
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_cronograma, menu);
+        inflater.inflate(R.menu.menu_prestacao_contas, menu);
 
         //Implementa o SearchView
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -297,6 +267,8 @@ public class CronogramaActivity extends ActionBarActivity{
     /****************************************************************************************/
     /**                    Implementação da clase do searchView                            */
     /**************************************************************************************/
+
+    //Classe de busca do SearchView
     private class SearchFiltro implements SearchView.OnQueryTextListener {
 
         @Override
@@ -317,7 +289,7 @@ public class CronogramaActivity extends ActionBarActivity{
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(CronogramaActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
+                Toast.makeText(PrestacaoContasInserirActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
             }
             return false;
         }
@@ -331,6 +303,7 @@ public class CronogramaActivity extends ActionBarActivity{
         menu.findItem(R.id.action_exit).setVisible(!drawerLeftOpen);
         return super.onPrepareOptionsMenu(menu);
     }
+
 
     /****************************************************************************************/
     /**                      Implementação da selecção do menu                             */
@@ -346,18 +319,12 @@ public class CronogramaActivity extends ActionBarActivity{
         // Manipula as ações dos botões
         switch(item.getItemId()) {
             case R.id.action_exit:
-                Intent intent = new Intent(this,PrincipalActivity.class);
-                //tira todas as atividades da pilha e vai para a home
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.putExtra("sair",true);
-                startActivity(intent);
-
+                sendLogout();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     /**
      * @param position
@@ -374,53 +341,51 @@ public class CronogramaActivity extends ActionBarActivity{
 
         if (position == 0) {
 
-            Intent intent = new Intent(CronogramaActivity.this,PrincipalActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,PrincipalActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         } else if (position == 1) {
-            /*Intent intent = new Intent(CronogramaActivity.this,CronogramaActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,CronogramaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);*/
+            startActivity(intent);
 
         } else if (position == 2) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastVisitaTecActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 3) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualVisitaTecActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosVisualVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 4) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastAuditoriaActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosCadastAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 5) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualAuditoriaActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosVisualAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 6) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastCheckListActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosCadastCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 7) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualCheckListActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosVisualCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 8) {
-            Intent intent = new Intent(CronogramaActivity.this,PrestacaoContasInserirActivity.class);
+            /*Intent intent = new Intent(PrestacaoContasInserirActivity.this,PrestacaoContasInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
+            startActivity(intent);*/
         }else if (position == 9) {
-            Intent intent = new Intent(CronogramaActivity.this,PrestacaoContasVerActivity.class);
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,PrestacaoContasVerActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }
 
     }
-
-
 
     /****************************************************************************************/
     /**                          Muda o titulo da ActionBar                                */
@@ -454,7 +419,7 @@ public class CronogramaActivity extends ActionBarActivity{
     /**                  Method to make logout in system                                      */
     /*****************************************************************************************/
     public void sendLogout(){
-        final ProgressDialog progress = new ProgressDialog(CronogramaActivity.this);
+        final ProgressDialog progress = new ProgressDialog(PrestacaoContasInserirActivity.this);
         progress.setMessage("Desconectando...");
         progress.show();
 
@@ -474,7 +439,7 @@ public class CronogramaActivity extends ActionBarActivity{
                             if (answer != null){
                                 if (!answer.equals("Ainda conectado")){
 
-                                    Intent intent = new Intent(CronogramaActivity.this,PrincipalActivity.class);
+                                    Intent intent = new Intent(PrestacaoContasInserirActivity.this,PrincipalActivity.class);
                                     //tira todas as atividades da pilha e vai para a home
                                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     intent.putExtra("sair",true);
@@ -483,7 +448,7 @@ public class CronogramaActivity extends ActionBarActivity{
 
                                 }else{
                                     progress.dismiss();
-                                    Toast.makeText(CronogramaActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(PrestacaoContasInserirActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
@@ -494,70 +459,50 @@ public class CronogramaActivity extends ActionBarActivity{
         }.start();
     }
 
+    /*******************************************************************************************/
+    /**                  Method to make insert expense in system                              */
+    /*****************************************************************************************/
+    public void sendExpense(final ArrayList<NameValuePair> valores ){
+        final ProgressDialog progress = new ProgressDialog(PrestacaoContasInserirActivity.this);
+        progress.setMessage("Cadastrando...");
+        progress.show();
 
+        final String url = "http://www.nowsolucoes.com.br/qualim/public/store-expense-android";
 
-    /****************************************************************************************/
-    /**                      metodo que gerencia o calendario                             */
-    /**************************************************************************************/
-    protected void setNextMonth() {
-        if (month.get(GregorianCalendar.MONTH) == month
-                .getActualMaximum(GregorianCalendar.MONTH)) {
-            month.set((month.get(GregorianCalendar.YEAR) + 1),
-                    month.getActualMinimum(GregorianCalendar.MONTH), 1);
-        } else {
-            month.set(GregorianCalendar.MONTH,
-                    month.get(GregorianCalendar.MONTH) + 1);
-        }
+        new Thread(){
+            public void run(){
 
-    }
+                answer = HttpConnection.getSetDataWeb(url, valores);
 
-    protected void setPreviousMonth() {
-        if (month.get(GregorianCalendar.MONTH) == month
-                .getActualMinimum(GregorianCalendar.MONTH)) {
-            month.set((month.get(GregorianCalendar.YEAR) - 1),
-                    month.getActualMaximum(GregorianCalendar.MONTH), 1);
-        } else {
-            month.set(GregorianCalendar.MONTH,
-                    month.get(GregorianCalendar.MONTH) - 1);
-        }
+                runOnUiThread(new Runnable(){
+                    public void run(){
+                        try{
+                            if (answer != null){
+                                if (answer.equals("Saved")){
+                                    progress.dismiss();
 
-    }
+                                    edtCliente.setText("");
+                                    edtHorarioEntrada.setText("");
+                                    edtHorarioSaida.setText("");
+                                    edtValeRefeicao.setText("");
+                                    edtDescValeTransporte.setText("");
+                                    edtSomaValeTrasnporte.setText("");
+                                    edtDescGastoExtra.setText("");
+                                    edtValorGastoExtra.setText("");
+                                    Toast.makeText(PrestacaoContasInserirActivity.this, "Despesa cadastrada com sucesso..!!!", Toast.LENGTH_LONG).show();
 
-    protected void showToast(String string) {
-        Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
-
-    }
-
-    public void refreshCalendar() {
-        TextView title = (TextView) findViewById(R.id.title);
-
-        adapter.refreshDays();
-        adapter.notifyDataSetChanged();
-        handler.post(calendarUpdater); // generate some calendar items
-
-        title.setText(android.text.format.DateFormat.format("MMMM yyyy", month));
-    }
-
-    public Runnable calendarUpdater = new Runnable() {
-
-        @Override
-        public void run() {
-            items.clear();
-
-            // Print dates of the current week
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-            String itemvalue;
-            event = Utility.readCalendarEvent(CronogramaActivity.this);
-            Log.d("=====Event====", event.toString());
-            Log.d("=====Date ARRAY====", Utility.startDates.toString());
-
-            for (int i = 0; i < Utility.startDates.size(); i++) {
-                itemvalue = df.format(itemmonth.getTime());
-                itemmonth.add(GregorianCalendar.DATE, 1);
-                items.add(Utility.startDates.get(i).toString());
+                                }else{
+                                    progress.dismiss();
+                                    Toast.makeText(PrestacaoContasInserirActivity.this, "Despesa não cadastrada..!!!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                        catch(NumberFormatException e){ e.printStackTrace(); }
+                    }
+                });
             }
-            adapter.setItems(items);
-            adapter.notifyDataSetChanged();
-        }
-    };
+        }.start();
+    }
+
 }
+

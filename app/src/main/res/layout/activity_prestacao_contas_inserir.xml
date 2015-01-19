@@ -1,0 +1,226 @@
+<!--
+  Copyright 2013 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<!-- A DrawerLayout is intended to be used as the top-level content view using match_parent for both width and height to consume the full space available. -->
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom_edit="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary_material_dark">
+
+    <!-- As the main content view, the view below consumes the entire
+         space available using match_parent in both dimensions. -->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView" >
+
+
+    <LinearLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cadastro de Despesas"
+                android:id="@+id/textView"
+                android:textColor="#DC143C"
+                android:gravity="center_horizontal"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:layout_marginBottom="30dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:ems="10"
+                android:id="@+id/edtCliente"
+                android:layout_weight="1"
+                android:textColorHint="#ffffff"
+                android:hint="*Cliente/Local"
+                android:layout_margin="2dp"
+                android:textColor="#DC143C"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:id="@+id/edtHorarioEntrada"
+                android:hint="*Hora de entrada"
+                android:textColorHint="#ffffff"
+                android:layout_margin="2dp"
+                android:textColor="#DC143C"
+                android:maxLength="5"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:layout_marginRight="3dp"
+                android:phoneNumber="false"
+                android:inputType="time" />
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:id="@+id/edtHorarioSaida"
+                android:textColorHint="#ffffff"
+                android:hint="*Hora de saída "
+                android:layout_margin="2dp"
+                android:textColor="#DC143C"
+                android:maxLength="5"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                android:layout_marginLeft="3dp"
+                android:inputType="time" />
+
+        </LinearLayout>
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:id="@+id/edtValeRefeicao"
+            android:textColorHint="#ffffff"
+            android:hint="*Vale refeição"
+            android:layout_margin="2dp"
+            android:textColor="#DC143C"
+            android:textStyle="bold" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/edtDescValeTransporte"
+            android:textColorHint="#ffffff"
+            android:hint="*Descrição vale transporte: ônibus + metrô"
+            android:layout_margin="2dp"
+            android:textColor="#DC143C"
+            android:textStyle="bold" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:id="@+id/somaValeTrasnporte"
+            android:textColorHint="#ffffff"
+            android:hint="*Soma do vale transporte"
+            android:layout_margin="2dp"
+            android:textColor="#DC143C"
+            android:textStyle="bold" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/edtDescGastoExtra"
+            android:layout_gravity="center_horizontal"
+            android:hint="*Descrição dos gastos extras"
+            android:textColorHint="#ffffff"
+            android:layout_margin="2dp"
+            android:textColor="#DC143C"
+            android:textStyle="bold" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:id="@+id/edtValorGastoExtra"
+            android:layout_gravity="center_horizontal"
+            android:textColorHint="#ffffff"
+            android:hint="*Valor dos gastos extras"
+            android:layout_margin="2dp"
+            android:textColor="#DC143C"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cadastrar despesa"
+                android:id="@+id/btnCadastrarDespesa"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/botao_vermelho"
+                android:layout_margin="2dp"
+                android:textColor="#ffffff" />
+
+        </RelativeLayout>
+     </LinearLayout>
+
+    <!-- android:layout_gravity="start" tells DrawerLayout to treat
+         this as a sliding drawer on the left side for left-to-right
+         languages and on the right side for right-to-left languages.
+         The drawer is given a fixed width in dp and extends the full height of
+         the container. A solid background is used for contrast
+         with the content view. -->
+    <ExpandableListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/white"
+        android:dividerHeight="1dp"
+        android:background="#111"/>
+
+</android.support.v4.widget.DrawerLayout>

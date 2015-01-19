@@ -2,9 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="br.com.tairoroberto.qualimsolucoes" >
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
 
     <application
         android:allowBackup="true"
@@ -14,11 +16,7 @@
         <activity
             android:name=".SplashActivity"
             android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".InicialActivity"
@@ -27,18 +25,48 @@
         <activity
             android:name=".PrincipalActivity"
             android:label="@string/title_activity_principal" >
+
         </activity>
         <activity
             android:name=".CronogramaActivity"
             android:label="@string/title_activity_cronograma" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
-            android:name=".RelatoriosActivity"
+            android:name=".RelatoriosCadastVisitaTecActivity"
             android:label="@string/title_activity_relatorios" >
         </activity>
         <activity
-            android:name=".PrestacaoContasActivity"
+            android:name=".PrestacaoContasInserirActivity"
             android:label="@string/title_activity_prestacao_contas" >
+        </activity>
+        <activity
+            android:name=".PrestacaoContasVerActivity"
+            android:label="@string/title_activity_prestacao_contas_ver" >
+        </activity>
+        <activity
+            android:name=".RelatoriosCadastAuditoriaActivity"
+            android:label="@string/title_activity_prestacao_contas_ver" >
+        </activity>
+        <activity
+            android:name=".RelatoriosCadastCheckListActivity"
+            android:label="@string/title_activity_prestacao_contas_ver" >
+        </activity>
+        <activity
+            android:name=".RelatoriosVisualAuditoriaActivity"
+            android:label="@string/title_activity_prestacao_contas_ver" >
+        </activity>
+        <activity
+            android:name=".RelatoriosVisualCheckListActivity"
+            android:label="@string/title_activity_prestacao_contas_ver" >
+        </activity>
+        <activity
+            android:name=".RelatoriosVisualVisitaTecActivity"
+            android:label="@string/title_activity_prestacao_contas_ver" >
         </activity>
     </application>
 

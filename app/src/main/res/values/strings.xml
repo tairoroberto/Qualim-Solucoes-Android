@@ -9,8 +9,8 @@
     <string name="btnEntarLogin">Login</string>
     <string name="btnRegistrarLogin">Resgistrar-se</string>
     <string name="txtSenhaLogin">Senha</string>
-    <string name="txtUsuarioLogin">Usuário</string>
-    <string name="txtMensagemLogin">Insira usuário e senha</string>
+    <string name="txtUsuarioLogin">E-mail</string>
+    <string name="txtMensagemLogin">Insira e-mail e senha</string>
     <string name="action_search">Buscar</string>
 
     <!-- Arrays preenchidos para serem mostrados nos fragments -->
@@ -29,5 +29,6 @@
     <string name="title_activity_cronograma">CronogramaActivity</string>
     <string name="title_activity_relatorios">RelatoriosActivity</string>
     <string name="title_activity_prestacao_contas">PrestacaoContasActivity</string>
+    <string name="title_activity_prestacao_contas_ver">PrestacaoContasVerActivity</string>
 
 </resources>

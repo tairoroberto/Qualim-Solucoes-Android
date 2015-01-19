@@ -1,6 +1,5 @@
 package br.com.tairoroberto.qualimsolucoes;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
@@ -18,17 +17,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.security.Principal;
 import java.util.ArrayList;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
@@ -59,6 +54,7 @@ public class PrincipalActivity extends ActionBarActivity{
         // mostra o logo do app na actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle("Home");
 
 
         //Verifica se foi enviado acão de sair
@@ -75,14 +71,14 @@ public class PrincipalActivity extends ActionBarActivity{
             }
         }
 
-        String nome[] = usuarioLogado.getName().split(" ");
+        String nome[] = /*usuarioLogado.getName().split(" ")*/ "tairo".split(" ");
         TextView txtWelcome = (TextView)findViewById(R.id.txtWelcome);
         txtWelcome.setText("Olá "+nome[0]+" seja bem vindo.");
 
         /****************************************************************************************/
         /**                     Implementação do ExpadableListView                             */
         /**************************************************************************************/
-        mTitle = mDrawerTitle = getTitle();
+        //mTitle = mDrawerTitle = getTitle();
         //Pega um array de String para colocar no drawer
 
         //Coloca os resources nas variáveis
@@ -111,20 +107,20 @@ public class PrincipalActivity extends ActionBarActivity{
                     selectItemLeft(1);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
                     selectItemLeft(2);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar viisitas técnicas"){
-                    selectItemLeft(2);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
+                    selectItemLeft(3);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
-                    selectItemLeft(2);
+                    selectItemLeft(4);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
-                    selectItemLeft(2);
+                    selectItemLeft(5);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
-                    selectItemLeft(2);
+                    selectItemLeft(6);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
-                    selectItemLeft(2);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir contas"){
-                    selectItemLeft(3);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver contas"){
-                    selectItemLeft(3);
+                    selectItemLeft(7);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
+                    selectItemLeft(8);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
+                    selectItemLeft(9);
                 }
                 return false;
             }
@@ -157,6 +153,9 @@ public class PrincipalActivity extends ActionBarActivity{
 
     }
 
+    /****************************************************************************************/
+    /**                               Implementação do Menu                                */
+    /**************************************************************************************/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -169,7 +168,9 @@ public class PrincipalActivity extends ActionBarActivity{
 
     }
 
-    //Classe de busca do SearchView
+    /****************************************************************************************/
+    /**                    Implementação da clase do searchView                            */
+    /**************************************************************************************/
     private class SearchFiltro implements OnQueryTextListener{
 
         @Override
@@ -205,6 +206,9 @@ public class PrincipalActivity extends ActionBarActivity{
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /****************************************************************************************/
+    /**                      Implementação da selecção do menu                             */
+    /**************************************************************************************/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // The action bar home/up action should open or close the drawer.
@@ -224,16 +228,24 @@ public class PrincipalActivity extends ActionBarActivity{
     }
 
 
+    /**
+     * @param position
+     */
+    /****************************************************************************************/
+    /**             Implementação do seleção da lista de menus lateral                     */
+    /**************************************************************************************/
     private void selectItemLeft(int position) {
 
         //Atualiza o item selecionado e titulo, depois fecha o Drawer
         mDrawerList_left.setItemChecked(position, true);
-        setTitle(mTelasTitles[position]);
+        //setTitle(mDrawerList_left.getExpandableListAdapter().getGroup(position).toString());
         mDrawerLayout.closeDrawer(mDrawerList_left);
 
-        if (position == 0) {//Shows
+        if (position == 0) {
 
-            /*Intent intent = new Intent(PrincipalActivity.this,EventosActivity.class);
+            /*Intent intent = new Intent(PrincipalActivity.this,PrincipalActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);*/
 
         } else if (position == 1) {
@@ -242,11 +254,35 @@ public class PrincipalActivity extends ActionBarActivity{
             startActivity(intent);
 
         } else if (position == 2) {
-            Intent intent = new Intent(PrincipalActivity.this,RelatoriosActivity.class);
+            Intent intent = new Intent(PrincipalActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 3) {
-            Intent intent = new Intent(PrincipalActivity.this,PrestacaoContasActivity.class);
+            Intent intent = new Intent(PrincipalActivity.this,RelatoriosVisualVisitaTecActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 4) {
+            Intent intent = new Intent(PrincipalActivity.this,RelatoriosCadastAuditoriaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 5) {
+            Intent intent = new Intent(PrincipalActivity.this,RelatoriosVisualAuditoriaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 6) {
+            Intent intent = new Intent(PrincipalActivity.this,RelatoriosCadastCheckListActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 7) {
+            Intent intent = new Intent(PrincipalActivity.this,RelatoriosVisualCheckListActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 8) {
+            Intent intent = new Intent(PrincipalActivity.this,PrestacaoContasInserirActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 9) {
+            Intent intent = new Intent(PrincipalActivity.this,PrestacaoContasVerActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }
@@ -255,7 +291,9 @@ public class PrincipalActivity extends ActionBarActivity{
 
 
 
-    //Muda o titulo da ActionBar
+    /****************************************************************************************/
+    /**                          Muda o titulo da ActionBar                                */
+    /**************************************************************************************/
     @Override
     public void setTitle(CharSequence title) {
         mTitle = title;

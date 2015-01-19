@@ -50,13 +50,13 @@ public class AdapterExpListview extends BaseExpandableListAdapter{
 
             /************************ Opções dos Relatorios************************/
 
-            { "Cadastrar visitas técnicas","Visualizar viisitas técnicas",
+            { "Cadastrar visitas técnicas","Visualizar visitas técnicas",
                     "Cadastrar auditórias","Visualizar auditórias",
                     "Cadastrar check list","Visualizar check list"},//
 
             /************************ Opções da Prestação de contas************************/
 
-            { "Insirir contas", "Ver contas" }
+            { "Insirir despesa", "Ver despesas" }
     };
 
 

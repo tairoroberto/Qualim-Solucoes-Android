@@ -11,31 +11,22 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
 import br.com.tairoroberto.util.HttpConnection;
 
-public class RelatoriosActivity extends ActionBarActivity{
+public class RelatoriosCadastAuditoriaActivity extends ActionBarActivity{
 
 
     private DrawerLayout mDrawerLayout;
@@ -54,11 +45,12 @@ public class RelatoriosActivity extends ActionBarActivity{
 
         // Coloca um efeito antes de mostrar a tela principal
         overridePendingTransition(R.anim.push_right_enter,R.anim.zoom_out_exit);
-        setContentView(R.layout.activity_relatorios);
+        setContentView(R.layout.activity_relatorios_cadastra_auditoria);
 
         // mostra o logo do app na actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle("Cadastrar auditórias");
 
         //Verifica se foi enviado acão de sair
         Intent intent = getIntent();
@@ -75,7 +67,7 @@ public class RelatoriosActivity extends ActionBarActivity{
         /****************************************************************************************/
         /**                     Implementação do ExpadableListView                             */
         /**************************************************************************************/
-        mTitle = mDrawerTitle = getTitle();
+        //mTitle = mDrawerTitle = getTitle();
         //Pega um array de String para colocar no drawer
 
         //Coloca os resources nas variáveis
@@ -103,20 +95,20 @@ public class RelatoriosActivity extends ActionBarActivity{
                     selectItemLeft(1);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
                     selectItemLeft(2);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar viisitas técnicas"){
-                    selectItemLeft(2);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
+                    selectItemLeft(3);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
-                    selectItemLeft(2);
+                    selectItemLeft(4);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
-                    selectItemLeft(2);
+                    selectItemLeft(5);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
-                    selectItemLeft(2);
+                    selectItemLeft(6);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
-                    selectItemLeft(2);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir contas"){
-                    selectItemLeft(3);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver contas"){
-                    selectItemLeft(3);
+                    selectItemLeft(7);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
+                    selectItemLeft(8);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
+                    selectItemLeft(9);
                 }
                 return false;
             }
@@ -125,7 +117,7 @@ public class RelatoriosActivity extends ActionBarActivity{
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
-                RelatoriosActivity.this,    /* Classe que chama a activity Activity */
+                RelatoriosCadastAuditoriaActivity.this,    /* Classe que chama a activity Activity */
                 mDrawerLayout,         /* Layout que será mostrado DrawerLayout  */
                 R.drawable.ic_drawer,  /* Icone que aparecera na ActionBar */
                 R.string.drawer_open){ /* Descrição */
@@ -149,6 +141,9 @@ public class RelatoriosActivity extends ActionBarActivity{
 
     }
 
+    /****************************************************************************************/
+    /**                               Implementação do Menu                                */
+    /**************************************************************************************/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -161,7 +156,9 @@ public class RelatoriosActivity extends ActionBarActivity{
 
     }
 
-    //Classe de busca do SearchView
+    /****************************************************************************************/
+    /**                    Implementação da clase do searchView                            */
+    /**************************************************************************************/
     private class SearchFiltro implements SearchView.OnQueryTextListener {
 
         @Override
@@ -182,7 +179,7 @@ public class RelatoriosActivity extends ActionBarActivity{
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(RelatoriosActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
+                Toast.makeText(RelatoriosCadastAuditoriaActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
             }
             return false;
         }
@@ -197,6 +194,9 @@ public class RelatoriosActivity extends ActionBarActivity{
         return super.onPrepareOptionsMenu(menu);
     }
 
+    /****************************************************************************************/
+    /**                      Implementação da selecção do menu                             */
+    /**************************************************************************************/
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // The action bar home/up action should open or close the drawer.
@@ -221,30 +221,61 @@ public class RelatoriosActivity extends ActionBarActivity{
     }
 
 
+    /**
+     * @param position
+     */
+    /****************************************************************************************/
+    /**             Implementação do seleção da lista de menus lateral                     */
+    /**************************************************************************************/
     private void selectItemLeft(int position) {
 
         //Atualiza o item selecionado e titulo, depois fecha o Drawer
         mDrawerList_left.setItemChecked(position, true);
-        setTitle(mTelasTitles[position]);
+        //setTitle(mDrawerList_left.getExpandableListAdapter().getGroup(position).toString());
         mDrawerLayout.closeDrawer(mDrawerList_left);
 
-        if (position == 0) {//Shows
+        if (position == 0) {
 
-            Intent intent = new Intent(RelatoriosActivity.this,PrincipalActivity.class);
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,PrincipalActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         } else if (position == 1) {
-            Intent intent = new Intent(RelatoriosActivity.this,CronogramaActivity.class);
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,CronogramaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         } else if (position == 2) {
-            /*Intent intent = new Intent(RelatoriosActivity.this,RelatoriosActivity.class);
-            startActivity(intent);*/
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,RelatoriosCadastVisitaTecActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
         }else if (position == 3) {
-            Intent intent = new Intent(RelatoriosActivity.this,PrestacaoContasActivity.class);
+            /*Intent intent = new Intent(RelatoriosCadastAuditoriaTecActivity.this,RelatoriosVisualVisitaTecActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);*/
+        }else if (position == 4) {
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,RelatoriosCadastAuditoriaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 5) {
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,RelatoriosVisualAuditoriaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 6) {
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,RelatoriosCadastCheckListActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 7) {
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,RelatoriosVisualCheckListActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 8) {
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,PrestacaoContasInserirActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 9) {
+            Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,PrestacaoContasVerActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }
@@ -253,7 +284,9 @@ public class RelatoriosActivity extends ActionBarActivity{
 
 
 
-    //Muda o titulo da ActionBar
+    /****************************************************************************************/
+    /**                          Muda o titulo da ActionBar                                */
+    /**************************************************************************************/
     @Override
     public void setTitle(CharSequence title) {
         mTitle = title;
@@ -283,7 +316,7 @@ public class RelatoriosActivity extends ActionBarActivity{
     /**                  Method to make logout in system                                      */
     /*****************************************************************************************/
     public void sendLogout(){
-        final ProgressDialog progress = new ProgressDialog(RelatoriosActivity.this);
+        final ProgressDialog progress = new ProgressDialog(RelatoriosCadastAuditoriaActivity.this);
         progress.setMessage("Desconectando...");
         progress.show();
 
@@ -303,7 +336,7 @@ public class RelatoriosActivity extends ActionBarActivity{
                             if (answer != null){
                                 if (!answer.equals("Ainda conectado")){
 
-                                    Intent intent = new Intent(RelatoriosActivity.this,PrincipalActivity.class);
+                                    Intent intent = new Intent(RelatoriosCadastAuditoriaActivity.this,PrincipalActivity.class);
                                     //tira todas as atividades da pilha e vai para a home
                                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     intent.putExtra("sair",true);
@@ -312,7 +345,7 @@ public class RelatoriosActivity extends ActionBarActivity{
 
                                 }else{
                                     progress.dismiss();
-                                    Toast.makeText(RelatoriosActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RelatoriosCadastAuditoriaActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }

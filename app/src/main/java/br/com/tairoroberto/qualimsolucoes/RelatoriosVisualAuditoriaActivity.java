@@ -4,44 +4,29 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.CalendarView;
 import android.widget.ExpandableListView;
-import android.widget.GridView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
-import br.com.tairoroberto.adapters.CalendarAdapter;
 import br.com.tairoroberto.util.HttpConnection;
-import br.com.tairoroberto.util.Utility;
 
-public class CronogramaActivity extends ActionBarActivity{
+public class RelatoriosVisualAuditoriaActivity extends ActionBarActivity{
 
 
     private DrawerLayout mDrawerLayout;
@@ -52,38 +37,20 @@ public class CronogramaActivity extends ActionBarActivity{
     private String[] mTelasTitles;
     private String answer;
     private SearchView searchView;
-    private UsuarioLogado usuarioLogado;
-    private CalendarView calendar;
-
-    /******************************************************************/
-    /**        inicio da Variáveis do calendario                     */
-    /****************************************************************/
-
-    public GregorianCalendar month, itemmonth;// calendar instances.
-
-    public CalendarAdapter adapter;// adapter instance
-    public Handler handler;// for grabbing some event values for showing the dot
-    // marker.
-    public ArrayList<String> items; // container to store calendar items which
-    // needs showing the event marker
-    ArrayList<String> event;
-    LinearLayout rLayout;
-    ArrayList<String> date;
-    ArrayList<String> desc;
-
+    UsuarioLogado usuarioLogado;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
 
         // Coloca um efeito antes de mostrar a tela principal
-        overridePendingTransition(R.anim.push_left_enter,R.anim.push_right_exit);
-        setContentView(R.layout.activity_cronograma);
+        overridePendingTransition(R.anim.push_right_enter,R.anim.zoom_out_exit);
+        setContentView(R.layout.activity_relatorios_visualiza_auditoria);
 
         // mostra o logo do app na actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Cronograma");
+        actionBar.setTitle("Visualizar auditórias");
 
         //Verifica se foi enviado acão de sair
         Intent intent = getIntent();
@@ -94,110 +61,6 @@ public class CronogramaActivity extends ActionBarActivity{
                 usuarioLogado = bundle.getParcelable("usuarioLogado");
             }
         }
-
-        /****************************************************************************************/
-        /**                     ligacção das variaveis do java com as do Xml                   */
-        /**************************************************************************************/
-        //calendar = (CalendarView) findViewById(R.id.calendarView);
-        Locale.setDefault(Locale.US);
-
-        rLayout = (LinearLayout) findViewById(R.id.text);
-        month = (GregorianCalendar) GregorianCalendar.getInstance();
-        itemmonth = (GregorianCalendar) month.clone();
-
-        items = new ArrayList<String>();
-
-        adapter = new CalendarAdapter(this, month);
-
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        gridview.setAdapter(adapter);
-
-        handler = new Handler();
-        handler.post(calendarUpdater);
-
-        TextView title = (TextView) findViewById(R.id.title);
-        title.setText(android.text.format.DateFormat.format("MMMM yyyy", month));
-
-        RelativeLayout previous = (RelativeLayout) findViewById(R.id.previous);
-
-        previous.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                setPreviousMonth();
-                refreshCalendar();
-            }
-        });
-
-        RelativeLayout next = (RelativeLayout) findViewById(R.id.next);
-        next.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                setNextMonth();
-                refreshCalendar();
-
-            }
-        });
-
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                // removing the previous view if added
-                if (((LinearLayout) rLayout).getChildCount() > 0) {
-                    ((LinearLayout) rLayout).removeAllViews();
-                }
-                desc = new ArrayList<String>();
-                date = new ArrayList<String>();
-                ((CalendarAdapter) parent.getAdapter()).setSelected(v);
-                String selectedGridDate = CalendarAdapter.dayString
-                        .get(position);
-                String[] separatedTime = selectedGridDate.split("-");
-                String gridvalueString = separatedTime[2].replaceFirst("^0*",
-                        "");// taking last part of date. ie; 2 from 2012-12-02.
-                int gridvalue = Integer.parseInt(gridvalueString);
-                // navigate to next or previous month on clicking offdays.
-                if ((gridvalue > 10) && (position < 8)) {
-                    setPreviousMonth();
-                    refreshCalendar();
-                } else if ((gridvalue < 7) && (position > 28)) {
-                    setNextMonth();
-                    refreshCalendar();
-                }
-                ((CalendarAdapter) parent.getAdapter()).setSelected(v);
-
-                for (int i = 0; i < Utility.startDates.size(); i++) {
-                    if (Utility.startDates.get(i).equals(selectedGridDate)) {
-                        desc.add(Utility.nameOfEvent.get(i));
-                    }
-                }
-
-                if (desc.size() > 0) {
-                    for (int i = 0; i < desc.size(); i++) {
-                        TextView rowTextView = new TextView(CronogramaActivity.this);
-
-                        // set some properties of rowTextView or something
-                        rowTextView.setText("Event:" + desc.get(i));
-                        rowTextView.setTextColor(Color.BLACK);
-
-                        // add the textview to the linearlayout
-                        rLayout.addView(rowTextView);
-
-                    }
-
-                }
-
-                desc = null;
-
-            }
-
-        });
-
-        /*************************************************************************************/
-        /**  fim da implementação do calendario*/
-        /***********************************************************************************/
-
-
 
 
 
@@ -222,7 +85,6 @@ public class CronogramaActivity extends ActionBarActivity{
         //Configura a lista do Drawer com os items do array e seta o evento de clique da lista
         //configura a lista da direita e esqueda do Drawer
         mDrawerList_left.setAdapter(new AdapterExpListview(this));
-
         mDrawerList_left.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
@@ -255,7 +117,7 @@ public class CronogramaActivity extends ActionBarActivity{
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
-                CronogramaActivity.this,    /* Classe que chama a activity Activity */
+                RelatoriosVisualAuditoriaActivity.this,    /* Classe que chama a activity Activity */
                 mDrawerLayout,         /* Layout que será mostrado DrawerLayout  */
                 R.drawable.ic_drawer,  /* Icone que aparecera na ActionBar */
                 R.string.drawer_open){ /* Descrição */
@@ -285,7 +147,7 @@ public class CronogramaActivity extends ActionBarActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_cronograma, menu);
+        inflater.inflate(R.menu.menu_relatorios, menu);
 
         //Implementa o SearchView
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -317,7 +179,7 @@ public class CronogramaActivity extends ActionBarActivity{
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(CronogramaActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
+                Toast.makeText(RelatoriosVisualAuditoriaActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
             }
             return false;
         }
@@ -374,46 +236,46 @@ public class CronogramaActivity extends ActionBarActivity{
 
         if (position == 0) {
 
-            Intent intent = new Intent(CronogramaActivity.this,PrincipalActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,PrincipalActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         } else if (position == 1) {
-            /*Intent intent = new Intent(CronogramaActivity.this,CronogramaActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,CronogramaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);*/
+            startActivity(intent);
 
         } else if (position == 2) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastVisitaTecActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 3) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualVisitaTecActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,RelatoriosVisualVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 4) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastAuditoriaActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,RelatoriosCadastAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 5) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualAuditoriaActivity.class);
+            /*Intent intent = new Intent(RelatoriosVisualAuditoriaTecActivity.this,RelatoriosVisualAuditoriaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
+            startActivity(intent);*/
         }else if (position == 6) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastCheckListActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,RelatoriosCadastCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 7) {
-            Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualCheckListActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,RelatoriosVisualCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 8) {
-            Intent intent = new Intent(CronogramaActivity.this,PrestacaoContasInserirActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,PrestacaoContasInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }else if (position == 9) {
-            Intent intent = new Intent(CronogramaActivity.this,PrestacaoContasVerActivity.class);
+            Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,PrestacaoContasVerActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }
@@ -454,7 +316,7 @@ public class CronogramaActivity extends ActionBarActivity{
     /**                  Method to make logout in system                                      */
     /*****************************************************************************************/
     public void sendLogout(){
-        final ProgressDialog progress = new ProgressDialog(CronogramaActivity.this);
+        final ProgressDialog progress = new ProgressDialog(RelatoriosVisualAuditoriaActivity.this);
         progress.setMessage("Desconectando...");
         progress.show();
 
@@ -474,7 +336,7 @@ public class CronogramaActivity extends ActionBarActivity{
                             if (answer != null){
                                 if (!answer.equals("Ainda conectado")){
 
-                                    Intent intent = new Intent(CronogramaActivity.this,PrincipalActivity.class);
+                                    Intent intent = new Intent(RelatoriosVisualAuditoriaActivity.this,PrincipalActivity.class);
                                     //tira todas as atividades da pilha e vai para a home
                                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     intent.putExtra("sair",true);
@@ -483,7 +345,7 @@ public class CronogramaActivity extends ActionBarActivity{
 
                                 }else{
                                     progress.dismiss();
-                                    Toast.makeText(CronogramaActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RelatoriosVisualAuditoriaActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
@@ -494,70 +356,5 @@ public class CronogramaActivity extends ActionBarActivity{
         }.start();
     }
 
-
-
-    /****************************************************************************************/
-    /**                      metodo que gerencia o calendario                             */
-    /**************************************************************************************/
-    protected void setNextMonth() {
-        if (month.get(GregorianCalendar.MONTH) == month
-                .getActualMaximum(GregorianCalendar.MONTH)) {
-            month.set((month.get(GregorianCalendar.YEAR) + 1),
-                    month.getActualMinimum(GregorianCalendar.MONTH), 1);
-        } else {
-            month.set(GregorianCalendar.MONTH,
-                    month.get(GregorianCalendar.MONTH) + 1);
-        }
-
-    }
-
-    protected void setPreviousMonth() {
-        if (month.get(GregorianCalendar.MONTH) == month
-                .getActualMinimum(GregorianCalendar.MONTH)) {
-            month.set((month.get(GregorianCalendar.YEAR) - 1),
-                    month.getActualMaximum(GregorianCalendar.MONTH), 1);
-        } else {
-            month.set(GregorianCalendar.MONTH,
-                    month.get(GregorianCalendar.MONTH) - 1);
-        }
-
-    }
-
-    protected void showToast(String string) {
-        Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
-
-    }
-
-    public void refreshCalendar() {
-        TextView title = (TextView) findViewById(R.id.title);
-
-        adapter.refreshDays();
-        adapter.notifyDataSetChanged();
-        handler.post(calendarUpdater); // generate some calendar items
-
-        title.setText(android.text.format.DateFormat.format("MMMM yyyy", month));
-    }
-
-    public Runnable calendarUpdater = new Runnable() {
-
-        @Override
-        public void run() {
-            items.clear();
-
-            // Print dates of the current week
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-            String itemvalue;
-            event = Utility.readCalendarEvent(CronogramaActivity.this);
-            Log.d("=====Event====", event.toString());
-            Log.d("=====Date ARRAY====", Utility.startDates.toString());
-
-            for (int i = 0; i < Utility.startDates.size(); i++) {
-                itemvalue = df.format(itemmonth.getTime());
-                itemmonth.add(GregorianCalendar.DATE, 1);
-                items.add(Utility.startDates.get(i).toString());
-            }
-            adapter.setItems(items);
-            adapter.notifyDataSetChanged();
-        }
-    };
 }
+

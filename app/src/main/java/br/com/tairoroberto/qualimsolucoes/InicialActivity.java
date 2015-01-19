@@ -108,7 +108,7 @@ public class InicialActivity extends Activity {
 
     public void sendLogin(final String email,final String password, final Dialog dialog){
         progress = new ProgressDialog(InicialActivity.this);
-        progress.setMessage("Carregando...");
+        progress.setMessage("Conectando...");
         progress.show();
 
         final String url = "http://www.nowsolucoes.com.br/qualim/public/login-android";
