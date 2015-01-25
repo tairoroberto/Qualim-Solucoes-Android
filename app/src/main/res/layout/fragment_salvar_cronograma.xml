@@ -1,0 +1,152 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativePaiFragment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="#000000"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/relativeFragment2"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/linearLayout"
+            android:layout_weight="6">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:inputType="textPersonName"
+                android:ems="10"
+                android:id="@+id/edtTituloCronograma"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff"
+                android:hint="Título"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:inputType="textPersonName"
+                    android:ems="10"
+                    android:id="@+id/edtLocalCronograma"
+                    android:layout_weight="1"
+                    android:textColorHint="#ffffff"
+                    android:textColor="#ffffff"
+                    android:hint="Local" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1.5">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/edtDescricaoCronograma"
+                    android:hint="Descriçao"
+                    android:textColorHint="#ffffff"
+                    android:textColor="#ffffff" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:ems="10"
+                    android:id="@+id/edtHoraEntradaCronograma"
+                    android:hint="Hora de entrada"
+                    android:textColorHint="#ffffff"
+                    android:textAlignment="center"
+                    android:textColor="#ffffff"
+                    android:maxLength="5"
+                    android:layout_weight="1"
+                    android:inputType="time" />
+
+                <EditText
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:ems="10"
+                    android:id="@+id/edtHoraSaidaCronograma"
+                    android:layout_weight="1"
+                    android:hint="Hora de Saída"
+                    android:textColorHint="#ffffff"
+                    android:textAlignment="center"
+                    android:textColor="#ffffff"
+                    android:maxLength="5"
+                    android:inputType="time" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/linearLayout"
+            android:layout_weight="1.1">
+
+            <Button
+                android:id="@+id/btnSalvarCronograma"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/botao_vermelho"
+                android:fontFamily="serif"
+                android:text="Salvar Cronograma"
+                android:textSize="16sp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_weight="1"
+                android:textColor="#ffffff" />
+
+            <View
+                android:layout_width="2dp"
+                android:layout_height="match_parent" />
+
+            <Button
+                android:id="@+id/btnSairCronograma"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/botao_vermelho"
+                android:fontFamily="serif"
+                android:text="Sair"
+                android:textSize="16sp"
+                android:layout_toRightOf="@+id/chLembrarFragment"
+                android:layout_toEndOf="@+id/chLembrarFragment"
+                android:layout_weight="1"
+                android:textColor="#ffffff" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -31,10 +31,10 @@ public class SplashActivity extends Activity {
         imageView = (ImageView) findViewById(R.id.imgSplash);
 
         // Create an animation instance
-        Animation an = new RotateAnimation(0.0f, 90.0f, imageView.getPivotX(), imageView.getPivotY());
+        Animation an = new RotateAnimation(0.0f, 80.0f, imageView.getPivotX(), imageView.getPivotY());
 
         // Set the animation's parameters
-        an.setDuration(7000);               // duration in ms
+        an.setDuration(3500);               // horaSaida in ms
         an.setRepeatCount(0);                // -1 = infinite repeated
         an.setRepeatMode(Animation.REVERSE); // reverses each repeat
         an.setFillAfter(true);               // keep rotation after animation
@@ -50,7 +50,7 @@ public class SplashActivity extends Activity {
                 try {
                     synchronized (this) {
 
-                        wait(3700);
+                        wait(3000);
                         mblnClicou = true;
                     }
                 } catch (InterruptedException ex) {

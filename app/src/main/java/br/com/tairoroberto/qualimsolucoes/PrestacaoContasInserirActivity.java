@@ -11,7 +11,6 @@ package br.com.tairoroberto.qualimsolucoes;
         import android.support.v7.app.ActionBarActivity;
         import android.support.v7.app.ActionBarDrawerToggle;
         import android.support.v7.widget.SearchView;
-        import android.util.Log;
         import android.view.Menu;
         import android.view.MenuInflater;
         import android.view.MenuItem;
@@ -19,18 +18,17 @@ package br.com.tairoroberto.qualimsolucoes;
         import android.widget.Button;
         import android.widget.EditText;
         import android.widget.ExpandableListView;
-        import android.widget.TextView;
         import android.widget.Toast;
 
         import org.apache.http.NameValuePair;
         import org.apache.http.message.BasicNameValuePair;
 
         import java.util.ArrayList;
-        import java.util.regex.Matcher;
-        import java.util.regex.Pattern;
 
         import br.com.tairoroberto.adapters.AdapterExpListview;
         import br.com.tairoroberto.util.HttpConnection;
+
+        import static br.com.tairoroberto.util.ValidaHora.validate;
 
 public class PrestacaoContasInserirActivity extends ActionBarActivity{
 
@@ -44,9 +42,6 @@ public class PrestacaoContasInserirActivity extends ActionBarActivity{
     private String answer;
     private SearchView searchView;
     private UsuarioLogado usuarioLogado;
-    private final String TIME24HOURS_PATTERN = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
-    private Pattern pattern;
-    private Matcher matcher;
 
     /**************************************************************************************/
     /**                      Variáveis do layout de prestação de contas                  */
@@ -186,24 +181,32 @@ public class PrestacaoContasInserirActivity extends ActionBarActivity{
                 //Verifify whacth screen go
                 if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Tela Inicial"){
                     selectItemLeft(0);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar cronograma"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar tarefas"){
                     selectItemLeft(1);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar cronograma"){
                     selectItemLeft(2);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
                     selectItemLeft(3);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
                     selectItemLeft(4);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
                     selectItemLeft(5);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
                     selectItemLeft(6);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
                     selectItemLeft(7);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
                     selectItemLeft(8);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
                     selectItemLeft(9);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
+                    selectItemLeft(10);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Mudar foto"){
+                    selectItemLeft(11);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Foto de assinatura"){
+                    selectItemLeft(12);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Trocar senha"){
+                    selectItemLeft(13);
                 }
                 return false;
             }
@@ -237,16 +240,7 @@ public class PrestacaoContasInserirActivity extends ActionBarActivity{
     }
 
 
-    /**
-     * Validate time in 24 hours format with regular expression
-     * @param time time address for validation
-     * @return true valid time fromat, false invalid time format
-     */
-    public boolean validate(final String time){
-        pattern = Pattern.compile(TIME24HOURS_PATTERN);
-        matcher = pattern.matcher(time);
-        return matcher.matches();
-    }
+
 
     /****************************************************************************************/
     /**                               Implementação do Menu                                */
@@ -347,40 +341,67 @@ public class PrestacaoContasInserirActivity extends ActionBarActivity{
             startActivity(intent);
 
         } else if (position == 1) {
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,TarefasVisualizarActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+
+        }else if (position == 2) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,CronogramaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
-        } else if (position == 2) {
+        } else if (position == 3) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 3) {
+
+        }else if (position == 4) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosVisualVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 4) {
+
+        }else if (position == 5) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosCadastAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 5) {
+
+        }else if (position == 6) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosVisualAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 6) {
+
+        }else if (position == 7) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosCadastCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 7) {
+
+        }else if (position == 8) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,RelatoriosVisualCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 8) {
-            /*Intent intent = new Intent(PrestacaoContasInserirActivity.this,PrestacaoContasInserirActivity.class);
+
+        }else if (position == 9) {
+           /* Intent intent = new Intent(PrestacaoContasInserirActivity.this,PrestacaoContasInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);*/
-        }else if (position == 9) {
+
+        }else if (position == 10) {
             Intent intent = new Intent(PrestacaoContasInserirActivity.this,PrestacaoContasVerActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+
+        }else if (position == 11) {
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,PerfilAlterarFotoActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+
+        }else if (position == 12) {
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,PerfilAlterarAssinaturaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+
+        }else if (position == 13) {
+            Intent intent = new Intent(PrestacaoContasInserirActivity.this,PerfilAlterarSenhaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }

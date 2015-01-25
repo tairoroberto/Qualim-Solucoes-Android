@@ -31,12 +31,14 @@ public class Utility {
 	public static ArrayList<String> startDates = new ArrayList<String>();
 	public static ArrayList<String> endDates = new ArrayList<String>();
 	public static ArrayList<String> descriptions = new ArrayList<String>();
+    public static ArrayList<String> startHour = new ArrayList<String>();
+    public static ArrayList<String> endHour = new ArrayList<String>();
 
 	public static ArrayList<String> readCalendarEvent(Context context) {
 		Cursor cursor = context.getContentResolver()
 				.query(Uri.parse("content://com.android.calendar/events"),
 						new String[] { "calendar_id", "title", "description",
-								"dtstart", "dtend", "eventLocation" }, null,
+								"dtstart", "dtend", "eventLocation"}, null,
 						null, null);
 		cursor.moveToFirst();
 		// fetching calendars name
@@ -47,12 +49,30 @@ public class Utility {
 		startDates.clear();
 		endDates.clear();
 		descriptions.clear();
+        startHour.clear();
+        endHour.clear();
 		for (int i = 0; i < CNames.length; i++) {
 
-			nameOfEvent.add(cursor.getString(1));
-			startDates.add(getDate(Long.parseLong(cursor.getString(3))));
-			endDates.add(getDate(Long.parseLong(cursor.getString(4))));
-			descriptions.add(cursor.getString(2));
+
+            if (cursor.getString(1) != null){
+                nameOfEvent.add(cursor.getString(1));
+            }
+            if (cursor.getString(3) != null){
+                startDates.add(getDate(Long.parseLong(cursor.getString(3))));
+            }
+			if (cursor.getString(4) != null){
+                endDates.add(getDate(Long.parseLong(cursor.getString(4))));
+            }
+			if (cursor.getString(2) != null){
+                descriptions.add(cursor.getString(2));
+            }
+            if (cursor.getString(3) != null){
+                startHour.add(getHour(Long.parseLong(cursor.getString(3))));
+            }
+            if (cursor.getString(4) != null){
+                endHour.add(getHour(Long.parseLong(cursor.getString(4))));
+            }
+
 			CNames[i] = cursor.getString(1);
 			cursor.moveToNext();
 
@@ -61,9 +81,16 @@ public class Utility {
 	}
 
 	public static String getDate(long milliSeconds) {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd")/*("yyyy-MM-dd")*/;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(milliSeconds);
 		return formatter.format(calendar.getTime());
 	}
+
+    public static String getHour(long milliSeconds) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")/*("yyyy-MM-dd")*/;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliSeconds);
+        return formatter.format(calendar.getTime());
+    }
 }

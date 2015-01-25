@@ -1,12 +1,15 @@
 package br.com.tairoroberto.qualimsolucoes;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.CalendarContract;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -18,8 +21,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -33,6 +39,8 @@ import org.apache.http.message.BasicNameValuePair;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
@@ -40,6 +48,8 @@ import br.com.tairoroberto.adapters.AdapterExpListview;
 import br.com.tairoroberto.adapters.CalendarAdapter;
 import br.com.tairoroberto.util.HttpConnection;
 import br.com.tairoroberto.util.Utility;
+
+import static br.com.tairoroberto.util.ValidaHora.validate;
 
 public class CronogramaActivity extends ActionBarActivity{
 
@@ -69,7 +79,10 @@ public class CronogramaActivity extends ActionBarActivity{
     ArrayList<String> event;
     LinearLayout rLayout;
     ArrayList<String> date;
-    ArrayList<String> desc;
+    ArrayList<String> titulo;
+    ArrayList<String> descricao;
+    ArrayList<String> horaInicio;
+    ArrayList<String> horaSaida;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +114,7 @@ public class CronogramaActivity extends ActionBarActivity{
         //calendar = (CalendarView) findViewById(R.id.calendarView);
         Locale.setDefault(Locale.US);
 
-        rLayout = (LinearLayout) findViewById(R.id.text);
+        rLayout = (LinearLayout) findViewById(R.id.layoutEventos);
         month = (GregorianCalendar) GregorianCalendar.getInstance();
         itemmonth = (GregorianCalendar) month.clone();
 
@@ -115,13 +128,12 @@ public class CronogramaActivity extends ActionBarActivity{
         handler = new Handler();
         handler.post(calendarUpdater);
 
-        TextView title = (TextView) findViewById(R.id.title);
+        final TextView title = (TextView) findViewById(R.id.title);
         title.setText(android.text.format.DateFormat.format("MMMM yyyy", month));
 
         RelativeLayout previous = (RelativeLayout) findViewById(R.id.previous);
 
         previous.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 setPreviousMonth();
@@ -131,7 +143,6 @@ public class CronogramaActivity extends ActionBarActivity{
 
         RelativeLayout next = (RelativeLayout) findViewById(R.id.next);
         next.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 setNextMonth();
@@ -141,14 +152,18 @@ public class CronogramaActivity extends ActionBarActivity{
         });
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 // removing the previous view if added
                 if (((LinearLayout) rLayout).getChildCount() > 0) {
                     ((LinearLayout) rLayout).removeAllViews();
                 }
-                desc = new ArrayList<String>();
+
                 date = new ArrayList<String>();
+                titulo = new ArrayList<String>();
+                descricao = new ArrayList<String>();
+                horaInicio = new ArrayList<String>();
+                horaSaida = new ArrayList<String>();
+
                 ((CalendarAdapter) parent.getAdapter()).setSelected(v);
                 String selectedGridDate = CalendarAdapter.dayString
                         .get(position);
@@ -168,29 +183,176 @@ public class CronogramaActivity extends ActionBarActivity{
 
                 for (int i = 0; i < Utility.startDates.size(); i++) {
                     if (Utility.startDates.get(i).equals(selectedGridDate)) {
-                        desc.add(Utility.nameOfEvent.get(i));
+                        titulo.add(Utility.nameOfEvent.get(i));
+                        descricao.add(Utility.descriptions.get(i));
+                        date.add(Utility.startDates.get(i));
+                        horaInicio.add(Utility.startHour.get(i));
+                        horaSaida.add(Utility.endHour.get(i));
                     }
                 }
 
-                if (desc.size() > 0) {
-                    for (int i = 0; i < desc.size(); i++) {
-                        TextView rowTextView = new TextView(CronogramaActivity.this);
+                String dateAux[];
+                if (descricao.size() > 0) {
+                    for (int i = 0; i < descricao.size(); i++) {
+                        //Views to add on layout
+                        TextView txtTitleEvent = new TextView(CronogramaActivity.this);
+                        TextView txtDescEvent = new TextView(CronogramaActivity.this);
+                        TextView txtStartEndHour = new TextView(CronogramaActivity.this);
+                        View view = new View(CronogramaActivity.this);
+                        view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 2));
+                        view.setBackgroundColor(Color.BLACK);
+
+                        //design views to show
+                        txtTitleEvent.setTextSize(16);
+                        txtTitleEvent.setTextColor(Color.BLACK);
+                        txtDescEvent.setTextSize(14);
+                        txtStartEndHour.setTextSize(14);
+                        txtStartEndHour.setTextColor(Color.RED);
+
+                        //Convert date
+                        dateAux = date.get(i).split("-");
 
                         // set some properties of rowTextView or something
-                        rowTextView.setText("Event:" + desc.get(i));
-                        rowTextView.setTextColor(Color.BLACK);
+                        txtTitleEvent.setText(titulo.get(i));
+                        txtDescEvent.setText(descricao.get(i));
+                        txtStartEndHour.setText("Inicio: " + horaInicio.get(i) + "   Fim: " + horaSaida.get(i));
 
                         // add the textview to the linearlayout
-                        rLayout.addView(rowTextView);
-
+                        rLayout.addView(txtTitleEvent);
+                        rLayout.addView(txtDescEvent);
+                        rLayout.addView(txtStartEndHour);
+                        rLayout.addView(view);
                     }
 
                 }
 
-                desc = null;
-
+                descricao = null;
             }
+        });
 
+        gridview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //Converte data
+                final String data[] = parent.getAdapter().getItem(position).toString().split("-");
+
+                //Dialogo to show cronogram
+                final Dialog dialog = new Dialog(CronogramaActivity.this);
+                /** inflando o layout pra criação do DialogFragment*/
+                dialog.setContentView(R.layout.fragment_salvar_cronograma);
+
+                /*************************************************************************/
+                /**                Cria os componentes no DialogFrafment 				*/
+                /***********************************************************************/
+                final EditText edtTituloCronograma = (EditText) dialog.findViewById(R.id.edtTituloCronograma);
+                final EditText edtLocalCronograma = (EditText) dialog.findViewById(R.id.edtLocalCronograma);
+                final EditText edtDescricaoCronograma = (EditText) dialog.findViewById(R.id.edtDescricaoCronograma);
+                final EditText edtHoraEntradaCronograma = (EditText) dialog.findViewById(R.id.edtHoraEntradaCronograma);
+                final EditText edtHoraSaidaCronograma = (EditText) dialog.findViewById(R.id.edtHoraSaidaCronograma);
+                Button btnSalvarCronograma = (Button) dialog.findViewById(R.id.btnSalvarCronograma);
+                Button btnSairCronograma = (Button) dialog.findViewById(R.id.btnSairCronograma);
+
+                /*************************************************************************/
+                /**                    Mostra o DialogFrafment 						*/
+                /***********************************************************************/
+                dialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
+                dialog.setTitle("Criar cronograma");
+                dialog.show();
+
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        refreshCalendar();
+                    }
+                });
+
+                /*************************************************************************/
+                /**                    Método para fazer login 						*/
+                /***********************************************************************/
+                btnSalvarCronograma.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                         if (edtLocalCronograma.getText().toString().equals("")){
+                            Toast.makeText(CronogramaActivity.this,"Insira o Local",Toast.LENGTH_SHORT).show();
+                             edtLocalCronograma.requestFocus();
+
+                        }else if (edtDescricaoCronograma.getText().toString().equals("")){
+                             Toast.makeText(CronogramaActivity.this,"Insira uma descrição",Toast.LENGTH_SHORT).show();
+                             edtDescricaoCronograma.requestFocus();
+
+                         }else if (edtHoraEntradaCronograma.getText().toString().equals("")){
+                             Toast.makeText(CronogramaActivity.this,"Insira a Hora de entrada",Toast.LENGTH_SHORT).show();
+                             edtHoraEntradaCronograma.requestFocus();
+
+                         }else if (!validate(edtHoraEntradaCronograma.getText().toString())){
+                            Toast.makeText(CronogramaActivity.this,"Formato do horário de entrada incorreto",Toast.LENGTH_SHORT).show();
+                            edtHoraEntradaCronograma.requestFocus();
+
+                        }else if (edtHoraSaidaCronograma.getText().toString().equals("")){
+                            Toast.makeText(CronogramaActivity.this,"Insira a Hora de saída",Toast.LENGTH_SHORT).show();
+                             edtHoraSaidaCronograma.requestFocus();
+
+                        }else if (!validate(edtHoraSaidaCronograma.getText().toString())){
+                            Toast.makeText(CronogramaActivity.this,"Formato do horário de saída incorreto",Toast.LENGTH_SHORT).show();
+                             edtHoraSaidaCronograma.requestFocus();
+
+                        }else {
+
+                             String HoraMinEntrada[] = edtHoraEntradaCronograma.getText().toString().split(":");
+                             String HoraMinSaida[] = edtHoraSaidaCronograma.getText().toString().split(":");
+
+                             Calendar beginTime = Calendar.getInstance();
+                             beginTime.set(Integer.parseInt(data[0]), Integer.parseInt(data[1]) - 1, Integer.parseInt(data[2]),
+                                                    Integer.parseInt(HoraMinEntrada[0]), Integer.parseInt(HoraMinEntrada[1]));
+
+                             Calendar endTime = Calendar.getInstance();
+                             endTime.set(Integer.parseInt(data[0]), Integer.parseInt(data[1]) - 1, Integer.parseInt(data[2]),
+                                                    Integer.parseInt(HoraMinSaida[0]), Integer.parseInt(HoraMinSaida[1]));
+
+                             Intent intent = new Intent(Intent.ACTION_INSERT)
+                                     .setData(CalendarContract.Events.CONTENT_URI)
+                                     .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis())
+                                     .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis())
+                                     .putExtra(CalendarContract.Events.TITLE, edtTituloCronograma.getText().toString())
+                                     .putExtra(CalendarContract.Events.DESCRIPTION, edtDescricaoCronograma.getText().toString())
+                                     .putExtra(CalendarContract.Events.EVENT_LOCATION, edtLocalCronograma.getText().toString())
+                                     .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY);
+
+
+
+                             ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+                             valores.add(new BasicNameValuePair("title", edtTituloCronograma.getText().toString()));
+                             valores.add(new BasicNameValuePair("description", edtDescricaoCronograma.getText().toString()));
+                             valores.add(new BasicNameValuePair("start", Utility.getHour(beginTime.getTimeInMillis())));
+                             valores.add(new BasicNameValuePair("end", Utility.getHour(endTime.getTimeInMillis())));
+                             valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
+
+                             //Send data to server
+                             storeEvent(valores);
+                             startActivity(intent);
+                             dialog.dismiss();
+                         }
+                    }
+                });
+
+
+
+                /*************************************************************************/
+                /**                         Método para  sair 						    */
+                /***********************************************************************/
+                btnSairCronograma.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(CronogramaActivity.this,"Sair ",Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+
+
+                return false;
+            }
         });
 
         /*************************************************************************************/
@@ -229,24 +391,32 @@ public class CronogramaActivity extends ActionBarActivity{
                 //Verifify whacth screen go
                 if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Tela Inicial"){
                     selectItemLeft(0);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar cronograma"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar tarefas"){
                     selectItemLeft(1);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar cronograma"){
                     selectItemLeft(2);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
                     selectItemLeft(3);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
                     selectItemLeft(4);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
                     selectItemLeft(5);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
                     selectItemLeft(6);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
                     selectItemLeft(7);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
                     selectItemLeft(8);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
                     selectItemLeft(9);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
+                    selectItemLeft(10);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Mudar foto"){
+                    selectItemLeft(11);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Foto de assinatura"){
+                    selectItemLeft(12);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Trocar senha"){
+                    selectItemLeft(13);
                 }
                 return false;
             }
@@ -380,40 +550,57 @@ public class CronogramaActivity extends ActionBarActivity{
             startActivity(intent);
 
         } else if (position == 1) {
+            Intent intent = new Intent(CronogramaActivity.this,TarefasVisualizarActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+
+        }else if (position == 2) {
             /*Intent intent = new Intent(CronogramaActivity.this,CronogramaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);*/
 
-        } else if (position == 2) {
+        } else if (position == 3) {
             Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 3) {
+        }else if (position == 4) {
             Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 4) {
+        }else if (position == 5) {
             Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 5) {
+        }else if (position == 6) {
             Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 6) {
+        }else if (position == 7) {
             Intent intent = new Intent(CronogramaActivity.this,RelatoriosCadastCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 7) {
+        }else if (position == 8) {
             Intent intent = new Intent(CronogramaActivity.this,RelatoriosVisualCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 8) {
+        }else if (position == 9) {
             Intent intent = new Intent(CronogramaActivity.this,PrestacaoContasInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 9) {
+        }else if (position == 10) {
             Intent intent = new Intent(CronogramaActivity.this,PrestacaoContasVerActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 11) {
+            Intent intent = new Intent(CronogramaActivity.this,PerfilAlterarFotoActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 12) {
+            Intent intent = new Intent(CronogramaActivity.this,PerfilAlterarAssinaturaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 13) {
+            Intent intent = new Intent(CronogramaActivity.this,PerfilAlterarSenhaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }
@@ -536,6 +723,7 @@ public class CronogramaActivity extends ActionBarActivity{
         handler.post(calendarUpdater); // generate some calendar items
 
         title.setText(android.text.format.DateFormat.format("MMMM yyyy", month));
+        rLayout.removeAllViews();
     }
 
     public Runnable calendarUpdater = new Runnable() {
@@ -560,4 +748,43 @@ public class CronogramaActivity extends ActionBarActivity{
             adapter.notifyDataSetChanged();
         }
     };
+
+
+    /*******************************************************************************************/
+    /**                  Method to make insert expense in system                              */
+    /*****************************************************************************************/
+    public void storeEvent(final ArrayList<NameValuePair> valores ){
+        final ProgressDialog progress = new ProgressDialog(CronogramaActivity.this);
+        progress.setMessage("Cadastrando...");
+        progress.show();
+
+        final String url = "http://www.nowsolucoes.com.br/qualim/public/store-events-android";
+
+        new Thread(){
+            public void run(){
+
+                answer = HttpConnection.getSetDataWeb(url, valores);
+
+                runOnUiThread(new Runnable(){
+                    public void run(){
+                        try{
+                            if (answer != null){
+                                if (answer.equals("Saved")){
+                                    progress.dismiss();
+                                    Toast.makeText(CronogramaActivity.this, "Evento cadastrado com sucesso..!!!", Toast.LENGTH_LONG).show();
+
+                                }else{
+                                    progress.dismiss();
+                                    Toast.makeText(CronogramaActivity.this, "Evento não cadastrado..!!!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }
+                        catch(NumberFormatException e){ e.printStackTrace(); }
+                    }
+                });
+            }
+        }.start();
+    }
+
+
 }

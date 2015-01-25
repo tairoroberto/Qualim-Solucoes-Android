@@ -34,8 +34,8 @@
             android:layout_height="match_parent"
             android:id="@+id/listViewDespesas"
             android:layout_gravity="center_horizontal"
-            android:divider="@android:color/white"
-            android:dividerHeight="2dp"/>
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="4dp"/>
     </LinearLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat

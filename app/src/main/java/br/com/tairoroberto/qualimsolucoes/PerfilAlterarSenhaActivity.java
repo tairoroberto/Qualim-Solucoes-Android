@@ -11,29 +11,25 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
-import br.com.tairoroberto.adapters.AdapterListDespesas;
 import br.com.tairoroberto.util.HttpConnection;
 
-public class PrestacaoContasVerActivity extends ActionBarActivity{
+public class PerfilAlterarSenhaActivity extends ActionBarActivity{
 
 
     private DrawerLayout mDrawerLayout;
@@ -44,8 +40,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
     private String[] mTelasTitles;
     private String answer;
     private SearchView searchView;
-    UsuarioLogado usuarioLogado;
-    private List<Despesas> list;
+    UsuarioLogado usuarioLogado = new UsuarioLogado();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,13 +48,14 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
         super.onCreate(savedInstanceState);
 
         // Coloca um efeito antes de mostrar a tela principal
-        overridePendingTransition(R.anim.zoom_in_enter,R.anim.push_left_exit);
-        setContentView(R.layout.activity_prestacao_contas_ver);
+        overridePendingTransition(R.anim.push_up_exit,R.anim.push_left_exit);
+        setContentView(R.layout.activity_perfil_trocar_senha);
 
         // mostra o logo do app na actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Visualizar despesas");
+        actionBar.setTitle("Home");
+
 
         //Verifica se foi enviado acão de sair
         Intent intent = getIntent();
@@ -70,18 +66,6 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
                 usuarioLogado = bundle.getParcelable("usuarioLogado");
             }
         }
-        /****************************************************************************************/
-        /**                     ligacção das variaveis do java com as do Xml                   */
-        /**************************************************************************************/
-
-        //ArrayList que será enviado para cadastrar a despesa
-        ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
-        valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
-
-        //Inicializa a lista para receber os valores que virão do servidor
-        list = new ArrayList<Despesas>();
-
-        sendExpenseShow(valores);
 
         /****************************************************************************************/
         /**                     Implementação do ExpadableListView                             */
@@ -104,6 +88,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
         //Configura a lista do Drawer com os items do array e seta o evento de clique da lista
         //configura a lista da direita e esqueda do Drawer
         mDrawerList_left.setAdapter(new AdapterExpListview(this));
+
         mDrawerList_left.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
@@ -144,7 +129,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
-                PrestacaoContasVerActivity.this,    /* Classe que chama a activity Activity */
+                PerfilAlterarSenhaActivity.this,    /* Classe que chama a activity Activity */
                 mDrawerLayout,         /* Layout que será mostrado DrawerLayout  */
                 R.drawable.ic_drawer,  /* Icone que aparecera na ActionBar */
                 R.string.drawer_open){ /* Descrição */
@@ -163,7 +148,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (savedInstanceState == null) {
-            // selectItemLeft(0);
+            //selectItemLeft(0);
         }
 
     }
@@ -171,11 +156,10 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
     /****************************************************************************************/
     /**                               Implementação do Menu                                */
     /**************************************************************************************/
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_prestacao_contas, menu);
+        inflater.inflate(R.menu.menu_principal, menu);
 
         //Implementa o SearchView
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -187,9 +171,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
     /****************************************************************************************/
     /**                    Implementação da clase do searchView                            */
     /**************************************************************************************/
-
-    //Classe de busca do SearchView
-    private class SearchFiltro implements SearchView.OnQueryTextListener {
+    private class SearchFiltro implements OnQueryTextListener{
 
         @Override
         public boolean onQueryTextChange(String query) {
@@ -209,7 +191,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(PrestacaoContasVerActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
+                Toast.makeText(PerfilAlterarSenhaActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
             }
             return false;
         }
@@ -223,7 +205,6 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
         menu.findItem(R.id.action_exit).setVisible(!drawerLeftOpen);
         return super.onPrepareOptionsMenu(menu);
     }
-
 
     /****************************************************************************************/
     /**                      Implementação da selecção do menu                             */
@@ -246,6 +227,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
         }
     }
 
+
     /**
      * @param position
      */
@@ -261,78 +243,70 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
 
         if (position == 0) {
 
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,PrincipalActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,PrincipalActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         } else if (position == 1) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,TarefasVisualizarActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,TarefasVisualizarActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         }else if (position == 2) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,CronogramaActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,CronogramaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         } else if (position == 3) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,RelatoriosCadastVisitaTecActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
         }else if (position == 4) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,RelatoriosVisualVisitaTecActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,RelatoriosVisualVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
         }else if (position == 5) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,RelatoriosCadastAuditoriaActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,RelatoriosCadastAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
         }else if (position == 6) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,RelatoriosVisualAuditoriaActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,RelatoriosVisualAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
         }else if (position == 7) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,RelatoriosCadastCheckListActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,RelatoriosCadastCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
         }else if (position == 8) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,RelatoriosVisualCheckListActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,RelatoriosVisualCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
         }else if (position == 9) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,PrestacaoContasInserirActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,PrestacaoContasInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
         }else if (position == 10) {
-           /* Intent intent = new Intent(PrestacaoContasVerActivity.this,PrestacaoContasVerActivity.class);
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,PrestacaoContasVerActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 11) {
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,PerfilAlterarFotoActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 12) {
+            Intent intent = new Intent(PerfilAlterarSenhaActivity.this,PerfilAlterarAssinaturaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 13) {
+            /*Intent intent = new Intent(PerfilAlterarSenhaActivity.this,PerfilAlterarSenhaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);*/
-
-        }else if (position == 11) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,PerfilAlterarFotoActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 12) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,PerfilAlterarAssinaturaActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 13) {
-            Intent intent = new Intent(PrestacaoContasVerActivity.this,PerfilAlterarSenhaActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
         }
 
     }
+
+
 
     /****************************************************************************************/
     /**                          Muda o titulo da ActionBar                                */
@@ -366,7 +340,7 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
     /**                  Method to make logout in system                                      */
     /*****************************************************************************************/
     public void sendLogout(){
-        final ProgressDialog progress = new ProgressDialog(PrestacaoContasVerActivity.this);
+        final ProgressDialog progress = new ProgressDialog(PerfilAlterarSenhaActivity.this);
         progress.setMessage("Desconectando...");
         progress.show();
 
@@ -386,81 +360,14 @@ public class PrestacaoContasVerActivity extends ActionBarActivity{
                             if (answer != null){
                                 if (!answer.equals("Ainda conectado")){
 
-                                    Intent intent = new Intent(PrestacaoContasVerActivity.this,PrincipalActivity.class);
-                                    //tira todas as atividades da pilha e vai para a home
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    intent.putExtra("sair",true);
-                                    startActivity(intent);
+                                    PerfilAlterarSenhaActivity.this.finish();
                                     progress.dismiss();
+                                    Log.i("Script","Resposta:" + answer);
 
                                 }else{
                                     progress.dismiss();
-                                    Toast.makeText(PrestacaoContasVerActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(PerfilAlterarSenhaActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
                                 }
-                            }
-                        }
-                        catch(NumberFormatException e){ e.printStackTrace(); }
-                    }
-                });
-            }
-        }.start();
-    }
-
-
-    /*******************************************************************************************/
-    /**                       Method to show expense in system                                */
-    /*****************************************************************************************/
-    public void sendExpenseShow(final ArrayList<NameValuePair> valores ){
-        final ProgressDialog progress = new ProgressDialog(PrestacaoContasVerActivity.this);
-        progress.setMessage("Cadastrando...");
-        progress.show();
-
-        final String url = "http://www.nowsolucoes.com.br/qualim/public/show-expense-android";
-
-        new Thread(){
-            public void run(){
-
-                answer = HttpConnection.getSetDataWeb(url, valores);
-
-                runOnUiThread(new Runnable(){
-                    public void run(){
-                        try{
-                            if (answer != null){
-                                try {
-                                    JSONArray array = new JSONArray(answer);
-                                    for (int i = 0; i < array.length(); i++) {
-                                        //Objeto Despesas recebera os valores de cada iteração do arrayJson
-                                        Despesas despesa = new Despesas();
-                                        JSONObject despesaJson = array.getJSONObject(i);
-
-                                        despesa.setId(despesaJson.getLong("id"));
-                                        despesa.setClient_locale(despesaJson.getString("client_locale"));
-                                        despesa.setEntry_time(despesaJson.getString("entry_time"));
-                                        despesa.setDeparture_time(despesaJson.getString("departure_time"));
-                                        despesa.setMeal_voucher(despesaJson.getString("meal_voucher"));
-                                        despesa.setObservation_transport(despesaJson.getString("observation_transport"));
-                                        despesa.setTransport_voucher(despesaJson.getString("transport_voucher"));
-                                        despesa.setObservation_extra_expense(despesaJson.getString("observation_extra_expense"));
-                                        despesa.setExtra_expense(despesaJson.getString("extra_expense"));
-                                        despesa.setNutricionista_id(despesaJson.getLong("nutricionista_id"));
-                                        despesa.setCreated_at(despesaJson.getString("created_at"));
-                                        despesa.setUpdated_at(despesaJson.getString("updated_at"));
-
-                                        list.add(despesa);
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                                progress.dismiss();
-                                //Seta o listView com os dados retornados do servidor
-                                ListView listView = (ListView)findViewById(R.id.listViewDespesas);
-                                listView.setAdapter(new AdapterListDespesas(PrestacaoContasVerActivity.this,list));
-
-                            }else{
-                                progress.dismiss();
-                                Toast.makeText(PrestacaoContasVerActivity.this, "Sem Despesas cadastradas..!!!", Toast.LENGTH_SHORT).show();
                             }
                         }
                         catch(NumberFormatException e){ e.printStackTrace(); }

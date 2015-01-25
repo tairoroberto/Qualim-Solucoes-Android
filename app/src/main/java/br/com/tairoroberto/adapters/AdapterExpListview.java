@@ -30,7 +30,7 @@ public class AdapterExpListview extends BaseExpandableListAdapter{
      *	 			 		String con todos os opçõesPai						*
      *************************** ********************************************************/
 
-    public String[] opcoesPai = { "Home", "Cronograma", "Relatórios", "Prestação de contas" };
+    public String[] opcoesPai = { "Home", "Tarefas","Cronograma", "Relatórios", "Prestação de contas", "Meu perfil"};
 
 
     /************************************************************************************
@@ -42,6 +42,10 @@ public class AdapterExpListview extends BaseExpandableListAdapter{
             /************************ Opções do Home************************/
 
             { "Tela Inicial" },
+
+            /************************ Opções das Tarefas************************/
+
+            { "Visualizar tarefas" },
 
             /************************ Opções do Cronograma************************/
 
@@ -56,7 +60,11 @@ public class AdapterExpListview extends BaseExpandableListAdapter{
 
             /************************ Opções da Prestação de contas************************/
 
-            { "Insirir despesa", "Ver despesas" }
+            { "Insirir despesa", "Ver despesas" },
+
+            /************************ Opções do perfil do usuario************************/
+
+            { "Mudar foto", "Foto de assinatura","Trocar senha" }
     };
 
 
@@ -120,6 +128,12 @@ public class AdapterExpListview extends BaseExpandableListAdapter{
                 break;
             case 3:
                 icone.setImageResource(R.drawable.ic_action_event);
+                break;
+            case 4:
+                icone.setImageResource(R.drawable.ic_action_view_as_list);
+                break;
+            case 5:
+                icone.setImageResource(R.drawable.ic_action_person);
                 break;
         }
         TextView txtPai = (TextView) convertView.findViewById(R.id.txtPai);

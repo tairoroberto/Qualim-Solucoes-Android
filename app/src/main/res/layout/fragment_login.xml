@@ -50,7 +50,7 @@
                 android:textColor="#ffffff" />
 
             <View
-                android:layout_width="1dp"
+                android:layout_width="2dp"
                 android:layout_height="match_parent" />
 
             <Button
@@ -78,7 +78,7 @@
             android:ems="10"
             android:fontFamily="serif"
             android:inputType="textPassword"
-            android:textColor="#DC143C"
+            android:textColor="#ffffff"
             android:textSize="22sp"
             android:hint="@string/txtSenhaLogin"
             android:textColorHint="#ffffff"
@@ -118,7 +118,7 @@
             android:gravity="center"
             android:hint="@string/txtUsuarioLogin"
             android:inputType="textPersonName"
-            android:textColor="#DC143C"
+            android:textColor="#ffffff"
             android:textColorHint="#ffffff"
             android:textSize="22sp"
             android:layout_alignParentTop="true"
