@@ -2,9 +2,14 @@ package br.com.tairoroberto.qualimsolucoes;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -18,13 +23,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
 import br.com.tairoroberto.util.HttpConnection;
@@ -41,6 +50,12 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
     private String answer;
     private SearchView searchView;
     UsuarioLogado usuarioLogado = new UsuarioLogado();
+    private static final int IMG_CAM = 1;
+    private static final int IMG_SDCARD = 2;
+    private ImageView imageAssinatura;
+    private SimpleDateFormat dateFormat;
+    private Date data, data_atual;
+    private Calendar cal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +81,16 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
                 usuarioLogado = bundle.getParcelable("usuarioLogado");
             }
         }
+
+        imageAssinatura = (ImageView)findViewById(R.id.imageAssinatura);
+        dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+        data = new Date();
+
+        cal = Calendar.getInstance();
+        cal.setTime(data);
+        data_atual = cal.getTime();
+        //String data_completa = dateFormat.format(data_atual);
 
         /****************************************************************************************/
         /**                     Implementação do ExpadableListView                             */
@@ -97,30 +122,32 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
                     selectItemLeft(0);
                 }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar tarefas"){
                     selectItemLeft(1);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar cronograma"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar cronograma"){
                     selectItemLeft(2);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar cronograma"){
                     selectItemLeft(3);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar visitas técnicas"){
                     selectItemLeft(4);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar visitas técnicas"){
                     selectItemLeft(5);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar auditórias"){
                     selectItemLeft(6);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar auditórias"){
                     selectItemLeft(7);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Cadastrar check list"){
                     selectItemLeft(8);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Visualizar check list"){
                     selectItemLeft(9);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Insirir despesa"){
                     selectItemLeft(10);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Mudar foto"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Ver despesas"){
                     selectItemLeft(11);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Foto de assinatura"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Mudar foto"){
                     selectItemLeft(12);
-                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Trocar senha"){
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Foto de assinatura"){
                     selectItemLeft(13);
+                }else if (parent.getExpandableListAdapter().getChild(groupPosition,childPosition).toString() == "Trocar senha"){
+                    selectItemLeft(14);
                 }
                 return false;
             }
@@ -254,51 +281,56 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
             startActivity(intent);
 
         }else if (position == 2) {
-            Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,CronogramaActivity.class);
+            Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,CronogramaInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
-        } else if (position == 3) {
+        }else if (position == 3) {
+            Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,CronogramaVerActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+
+        } else if (position == 4) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 4) {
+        }else if (position == 5) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosVisualVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 5) {
+        }else if (position == 6) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosCadastAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 6) {
+        }else if (position == 7) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosVisualAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 7) {
+        }else if (position == 8) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosCadastCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 8) {
+        }else if (position == 9) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosVisualCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 9) {
+        }else if (position == 10) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PrestacaoContasInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 10) {
+        }else if (position == 11) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PrestacaoContasVerActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 11) {
+        }else if (position == 12) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PerfilAlterarFotoActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-        }else if (position == 12) {
+        }else if (position == 13) {
             /*Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PerfilAlterarAssinaturaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);*/
-        }else if (position == 13) {
+        }else if (position == 14) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PerfilAlterarSenhaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
@@ -334,6 +366,118 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
+    /*******************************************************************************************/
+    /**                  Method to teka an image from CAMERA                                  */
+    /*****************************************************************************************/
+    public void callIntentSignatureCam(View view){
+        File file = new File(android.os.Environment.getExternalStorageDirectory(), "signature"+data_atual.toString()+".png");
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        startActivityForResult(intent, IMG_CAM);
+    }
+
+    /*******************************************************************************************/
+    /**                  Method to teka an image from SDCARD                                         */
+    /*****************************************************************************************/
+    public void callIntentSignatureSDCard(View view){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, IMG_SDCARD);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        File file = null;
+
+        if(data != null && requestCode == IMG_SDCARD && resultCode == RESULT_OK){
+            Uri img = data.getData();
+            String[] cols = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(img, cols, null, null, null);
+            cursor.moveToFirst();
+
+            int indexCol = cursor.getColumnIndex(cols[0]);
+            String imgString = cursor.getString(indexCol);
+            cursor.close();
+
+            file = new File(imgString);
+            if(file != null){
+                usuarioLogado.setResizedBitmapSignature(file, 300, 300);
+                usuarioLogado.setMimeFromImgPath(file.getPath());
+            }
+        }
+        else if(requestCode == IMG_CAM && resultCode == RESULT_OK){
+            file = new File(android.os.Environment.getExternalStorageDirectory(), "signature"+data_atual.toString()+".png");
+            if(file != null){
+                usuarioLogado.setResizedBitmapSignature(file, 300, 300);
+                usuarioLogado.setMimeFromImgPath(file.getPath());
+            }
+        }
+
+
+        if(usuarioLogado.getBitmapSignature() != null){
+            imageAssinatura.setImageBitmap(usuarioLogado.getBitmapSignature());
+        }
+    }
+    /*******************************************************************************************/
+    /**                  Method to send Image in system                                       */
+    /*****************************************************************************************/
+
+    public void sendServer(View view){
+        ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+        valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
+        valores.add(new BasicNameValuePair("img-mime", usuarioLogado.getMime()));
+        valores.add(new BasicNameValuePair("img-image", usuarioLogado.getBitmapBase64Signature()));
+
+        StoreSignature storeSignature = new StoreSignature(this);
+        storeSignature.execute(valores);
+
+    }
+
+
+    /*******************************************************************************************/
+    /**                   Class to make insert event in system                               */
+    /*****************************************************************************************/
+    private class StoreSignature extends AsyncTask<ArrayList<NameValuePair>,Void,String> {
+        Context context;
+        private ProgressDialog progress;
+
+        public StoreSignature(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(context);
+            progress.setMessage("Salvando assinatura...");
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(ArrayList<NameValuePair>... params) {
+            final String url = "http://www.nowsolucoes.com.br/qualim/public/store-signature-android";
+            answer = HttpConnection.getSetDataWeb(url, params[0]);
+            return answer;
+        }
+
+        @Override
+        protected void onPostExecute(String answer) {
+            super.onPostExecute(answer);
+            //Log.i("Script","Resposta do servidor: "+answer);
+            progress.dismiss();
+            if (answer.equals("Saved")){
+                Toast.makeText(context, "Assinatura Salva no servidor..!!!", Toast.LENGTH_LONG).show();
+                Log.i("Script","Resposta servidor: "+answer);
+
+            }else{
+                Toast.makeText(context, "Assinatura não Salva no servidor..!!!", Toast.LENGTH_LONG).show();
+                Log.i("Script","Resposta servidor: "+answer);
+            }
+        }
     }
 
     /*******************************************************************************************/

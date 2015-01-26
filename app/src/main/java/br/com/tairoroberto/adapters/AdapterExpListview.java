@@ -49,7 +49,7 @@ public class AdapterExpListview extends BaseExpandableListAdapter{
 
             /************************ Opções do Cronograma************************/
 
-            { "Visualizar cronograma" },
+            { "Cadastrar cronograma","Visualizar cronograma" },
 
 
             /************************ Opções dos Relatorios************************/

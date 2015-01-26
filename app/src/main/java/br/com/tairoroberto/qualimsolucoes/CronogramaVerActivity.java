@@ -1,44 +1,67 @@
 package br.com.tairoroberto.qualimsolucoes;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.os.Handler;
+import android.provider.CalendarContract;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.SearchView.OnQueryTextListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
-import android.widget.ImageView;
+import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.io.File;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
+import br.com.tairoroberto.adapters.AdapterListDespesas;
+import br.com.tairoroberto.adapters.AdapterListEventos;
+import br.com.tairoroberto.adapters.CalendarAdapter;
+import br.com.tairoroberto.adapters.ListaDespesas;
+import br.com.tairoroberto.adapters.ListaEventos;
 import br.com.tairoroberto.util.HttpConnection;
+import br.com.tairoroberto.util.Utility;
 
-public class PerfilAlterarFotoActivity extends ActionBarActivity{
+import static br.com.tairoroberto.util.ValidaHora.validate;
+
+public class CronogramaVerActivity extends ActionBarActivity{
 
 
     private DrawerLayout mDrawerLayout;
@@ -49,13 +72,9 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     private String[] mTelasTitles;
     private String answer;
     private SearchView searchView;
-    UsuarioLogado usuarioLogado = new UsuarioLogado();
-    private static final int IMG_CAM = 1;
-    private static final int IMG_SDCARD = 2;
-    private ImageView imageFoto;
-    private SimpleDateFormat dateFormat;
-    private Date data, data_atual;
-    private Calendar cal;
+    private UsuarioLogado usuarioLogado;
+    private List<Evento> list;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,14 +82,13 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
         super.onCreate(savedInstanceState);
 
         // Coloca um efeito antes de mostrar a tela principal
-        overridePendingTransition(R.anim.push_left_enter,R.anim.push_left_exit);
-        setContentView(R.layout.activity_perfil_foto);
+        overridePendingTransition(R.anim.push_left_enter,R.anim.push_right_exit);
+        setContentView(R.layout.activity_cronograma_ver);
 
         // mostra o logo do app na actionbar
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Home");
-
+        actionBar.setTitle("Cronograma");
 
         //Verifica se foi enviado acão de sair
         Intent intent = getIntent();
@@ -82,16 +100,30 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
             }
         }
 
-        imageFoto = (ImageView)findViewById(R.id.imageFoto);
+        //ArrayList que será enviado para cadastrar a despesa
+        ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+        valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
 
-        dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        //Inicializa a lista para receber os valores que virão do servidor
+        list = new ArrayList<Evento>();
 
-        data = new Date();
+        //verifica se tem alguma instacia de estado salva
+        if (savedInstanceState != null) {
+            ListaEventos listaEventos = (ListaEventos) savedInstanceState.getParcelable(ListaEventos.key);
+            this.list = listaEventos.eventos;
+        }
 
-        cal = Calendar.getInstance();
-        cal.setTime(data);
-        data_atual = cal.getTime();
-        //String data_completa = dateFormat.format(data_atual);
+        //verifica de a lista de imagens esta vazia
+        if (list == null || list.size() == 0) {
+            //Send cronograma to server
+            ShowEvents showEvents = new ShowEvents(CronogramaVerActivity.this);
+            showEvents.execute(valores);
+        }else{
+            //Seta o listView com os dados retornados do servidor
+            ListView listEventos = (ListView)findViewById(R.id.listEventos);
+            listEventos.setAdapter(new AdapterListEventos(CronogramaVerActivity.this,list));
+        }
+
 
         /****************************************************************************************/
         /**                     Implementação do ExpadableListView                             */
@@ -157,7 +189,7 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
-                PerfilAlterarFotoActivity.this,    /* Classe que chama a activity Activity */
+                CronogramaVerActivity.this,    /* Classe que chama a activity Activity */
                 mDrawerLayout,         /* Layout que será mostrado DrawerLayout  */
                 R.drawable.ic_drawer,  /* Icone que aparecera na ActionBar */
                 R.string.drawer_open){ /* Descrição */
@@ -176,10 +208,20 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (savedInstanceState == null) {
-            //selectItemLeft(0);
+           // selectItemLeft(0);
         }
 
     }
+
+    /****************************************************************************************/
+    /**                            methos onSaveInstanceState                              */
+    /**************************************************************************************/
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(ListaEventos.key, new ListaEventos(list));
+    }
+
 
     /****************************************************************************************/
     /**                               Implementação do Menu                                */
@@ -187,7 +229,7 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_principal, menu);
+        inflater.inflate(R.menu.menu_cronograma, menu);
 
         //Implementa o SearchView
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -199,7 +241,7 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     /****************************************************************************************/
     /**                    Implementação da clase do searchView                            */
     /**************************************************************************************/
-    private class SearchFiltro implements OnQueryTextListener{
+    private class SearchFiltro implements SearchView.OnQueryTextListener {
 
         @Override
         public boolean onQueryTextChange(String query) {
@@ -219,7 +261,7 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
             } else {
-                Toast.makeText(PerfilAlterarFotoActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
+                Toast.makeText(CronogramaVerActivity.this, R.string.app_not_available, Toast.LENGTH_LONG).show();
             }
             return false;
         }
@@ -248,7 +290,12 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
         // Manipula as ações dos botões
         switch(item.getItemId()) {
             case R.id.action_exit:
-                sendLogout();
+                Intent intent = new Intent(this,PrincipalActivity.class);
+                //tira todas as atividades da pilha e vai para a home
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra("sair",true);
+                startActivity(intent);
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -271,78 +318,68 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
 
         if (position == 0) {
 
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,PrincipalActivity.class);
+            Intent intent = new Intent(CronogramaVerActivity.this,PrincipalActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         } else if (position == 1) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,TarefasVisualizarActivity.class);
+            Intent intent = new Intent(CronogramaVerActivity.this,TarefasVisualizarActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         }else if (position == 2) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,CronogramaInserirActivity.class);
+            Intent intent = new Intent(CronogramaVerActivity.this,CronogramaInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
 
         }else if (position == 3) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,CronogramaVerActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        } else if (position == 4) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,RelatoriosCadastVisitaTecActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 5) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,RelatoriosVisualVisitaTecActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 6) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,RelatoriosCadastAuditoriaActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 7) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,RelatoriosVisualAuditoriaActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 8) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,RelatoriosCadastCheckListActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 9) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,RelatoriosVisualCheckListActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 10) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,PrestacaoContasInserirActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 11) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,PrestacaoContasVerActivity.class);
-            intent.putExtra("usuarioLogado",usuarioLogado);
-            startActivity(intent);
-
-        }else if (position == 12) {
-           /* Intent intent = new Intent(PerfilAlterarFotoActivity.this,PerfilAlterarFotoActivity.class);
+            /*Intent intent = new Intent(CronogramaVerActivity.this,CronogramaVerActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);*/
 
-        }else if (position == 13) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,PerfilAlterarAssinaturaActivity.class);
+        } else if (position == 4) {
+            Intent intent = new Intent(CronogramaVerActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
-
+        }else if (position == 5) {
+            Intent intent = new Intent(CronogramaVerActivity.this,RelatoriosVisualVisitaTecActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 6) {
+            Intent intent = new Intent(CronogramaVerActivity.this,RelatoriosCadastAuditoriaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 7) {
+            Intent intent = new Intent(CronogramaVerActivity.this,RelatoriosVisualAuditoriaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 8) {
+            Intent intent = new Intent(CronogramaVerActivity.this,RelatoriosCadastCheckListActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 9) {
+            Intent intent = new Intent(CronogramaVerActivity.this,RelatoriosVisualCheckListActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 10) {
+            Intent intent = new Intent(CronogramaVerActivity.this,PrestacaoContasInserirActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 11) {
+            Intent intent = new Intent(CronogramaVerActivity.this,PrestacaoContasVerActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 12) {
+            Intent intent = new Intent(CronogramaVerActivity.this,PerfilAlterarFotoActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
+        }else if (position == 13) {
+            Intent intent = new Intent(CronogramaVerActivity.this,PerfilAlterarAssinaturaActivity.class);
+            intent.putExtra("usuarioLogado",usuarioLogado);
+            startActivity(intent);
         }else if (position == 14) {
-            Intent intent = new Intent(PerfilAlterarFotoActivity.this,PerfilAlterarSenhaActivity.class);
+            Intent intent = new Intent(CronogramaVerActivity.this,PerfilAlterarSenhaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
         }
@@ -380,122 +417,10 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     }
 
     /*******************************************************************************************/
-    /**                  Method to teka an image from CAMERA                                  */
-    /*****************************************************************************************/
-    public void callIntentImgCam(View view){
-
-        File file = new File(android.os.Environment.getExternalStorageDirectory(), "image"+data_atual.toString()+".png");
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-        startActivityForResult(intent, IMG_CAM);
-    }
-
-    /*******************************************************************************************/
-    /**                  Method to teka an image from SDCARD                                         */
-    /*****************************************************************************************/
-    public void callIntentImgSDCard(View view){
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(intent, IMG_SDCARD);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        File file = null;
-
-        if(data != null && requestCode == IMG_SDCARD && resultCode == RESULT_OK){
-            Uri img = data.getData();
-            String[] cols = { MediaStore.Images.Media.DATA };
-            Cursor cursor = getContentResolver().query(img, cols, null, null, null);
-            cursor.moveToFirst();
-
-            int indexCol = cursor.getColumnIndex(cols[0]);
-            String imgString = cursor.getString(indexCol);
-            cursor.close();
-
-            file = new File(imgString);
-            if(file != null){
-                usuarioLogado.setResizedBitmapPhoto(file, 300, 300);
-                usuarioLogado.setMimeFromImgPath(file.getPath());
-            }
-        }
-        else if(requestCode == IMG_CAM && resultCode == RESULT_OK){
-            file = new File(android.os.Environment.getExternalStorageDirectory(), "image"+data_atual.toString()+".png");
-            if(file != null){
-                usuarioLogado.setResizedBitmapPhoto(file, 300, 300);
-                usuarioLogado.setMimeFromImgPath(file.getPath());
-            }
-        }
-
-
-        if(usuarioLogado.getBitmapPhoto() != null){
-            imageFoto.setImageBitmap(usuarioLogado.getBitmapPhoto());
-        }
-    }
-    /*******************************************************************************************/
-    /**                  Method to send Image in system                                       */
-    /*****************************************************************************************/
-
-    public void sendServer(View view){
-        ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
-        valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
-        valores.add(new BasicNameValuePair("img-mime", usuarioLogado.getMime()));
-        valores.add(new BasicNameValuePair("img-image", usuarioLogado.getBitmapBase64Photo()));
-
-        StorePhoto storePhoto = new StorePhoto(this);
-        storePhoto.execute(valores);
-
-    }
-
-
-    /*******************************************************************************************/
-    /**                   Class to make insert event in system                               */
-    /*****************************************************************************************/
-    private class StorePhoto extends AsyncTask<ArrayList<NameValuePair>,Void,String> {
-        Context context;
-        private ProgressDialog progress;
-
-        public StorePhoto(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progress = new ProgressDialog(context);
-            progress.setMessage("Salvando foto...");
-            progress.show();
-        }
-
-        @Override
-        protected String doInBackground(ArrayList<NameValuePair>... params) {
-            final String url = "http://www.nowsolucoes.com.br/qualim/public/store-photo-android";
-            answer = HttpConnection.getSetDataWeb(url, params[0]);
-            return answer;
-        }
-
-        @Override
-        protected void onPostExecute(String answer) {
-            super.onPostExecute(answer);
-            //Log.i("Script","Resposta do servidor: "+answer);
-            progress.dismiss();
-            if (answer.equals("Saved")){
-                Toast.makeText(context, "Imagem Salva no servidor..!!!", Toast.LENGTH_LONG).show();
-                Log.i("Script","Resposta servidor: "+answer);
-
-            }else{
-                Toast.makeText(context, "Imagem não Salva no servidor..!!!", Toast.LENGTH_LONG).show();
-                Log.i("Script","Resposta servidor: "+answer);
-            }
-        }
-    }
-
-    /*******************************************************************************************/
     /**                  Method to make logout in system                                      */
     /*****************************************************************************************/
     public void sendLogout(){
-        final ProgressDialog progress = new ProgressDialog(PerfilAlterarFotoActivity.this);
+        final ProgressDialog progress = new ProgressDialog(CronogramaVerActivity.this);
         progress.setMessage("Desconectando...");
         progress.show();
 
@@ -515,13 +440,16 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
                             if (answer != null){
                                 if (!answer.equals("Ainda conectado")){
 
-                                    PerfilAlterarFotoActivity.this.finish();
+                                    Intent intent = new Intent(CronogramaVerActivity.this,PrincipalActivity.class);
+                                    //tira todas as atividades da pilha e vai para a home
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    intent.putExtra("sair",true);
+                                    startActivity(intent);
                                     progress.dismiss();
-                                    Log.i("Script","Resposta:" + answer);
 
                                 }else{
                                     progress.dismiss();
-                                    Toast.makeText(PerfilAlterarFotoActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(CronogramaVerActivity.this, "Ainda conectado..!!!", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
@@ -533,4 +461,72 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     }
 
 
+    /*******************************************************************************************/
+    /**                   Class to make insert event in system                               */
+    /*****************************************************************************************/
+     private class ShowEvents extends AsyncTask<ArrayList<NameValuePair>,Void,String>{
+        Context context;
+        private ProgressDialog progress;
+
+        public ShowEvents(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(context);
+            progress.setMessage("Carregando...");
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(ArrayList<NameValuePair>... params) {
+            final String url = "http://www.nowsolucoes.com.br/qualim/public/show-events-android";
+            answer = HttpConnection.getSetDataWeb(url, params[0]);
+            return answer;
+        }
+
+        @Override
+        protected void onPostExecute(String answer) {
+            super.onPostExecute(answer);
+            //Log.i("Script","Resposta do servidor: "+answer);
+            progress.dismiss();
+            if (answer != null){
+
+                try {
+                    JSONArray array = new JSONArray(answer);
+                    for (int i = 0; i < array.length(); i++) {
+                        //Objeto Despesas recebera os valores de cada iteração do arrayJson
+                        Evento evento = new Evento();
+                        JSONObject eventoJson = array.getJSONObject(i);
+
+                        evento.setId(eventoJson.getLong("id"));
+                        evento.setTitle(eventoJson.getString("title"));
+                        evento.setDescription(eventoJson.getString("description"));
+                        evento.setLocation(eventoJson.getString("location"));
+                        evento.setStart(eventoJson.getString("start"));
+                        evento.setEnd(eventoJson.getString("end"));
+                        evento.setNutricionista_id(eventoJson.getLong("nutricionista_id"));
+                        list.add(evento);
+                    }
+
+                    //Seta o listView com os dados retornados do servidor
+                    ListView listEventos = (ListView)findViewById(R.id.listEventos);
+                    listEventos.setAdapter(new AdapterListEventos(context,list));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                //Log.i("Script","Resposta servidor: "+answer);
+
+            }else{
+                Toast.makeText(context, "Não existem eventos..!!!", Toast.LENGTH_LONG).show();
+                Log.i("Script","Resposta servidor: "+answer);
+            }
+        }
+    }
+
 }
+
