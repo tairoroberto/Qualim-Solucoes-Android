@@ -32,7 +32,6 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
@@ -52,10 +51,11 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
     UsuarioLogado usuarioLogado = new UsuarioLogado();
     private static final int IMG_CAM = 1;
     private static final int IMG_SDCARD = 2;
-    private ImageView imageAssinatura;
+    private ImageView imageFoto;
+    private Date date;
     private SimpleDateFormat dateFormat;
-    private Date data, data_atual;
-    private Calendar cal;
+    private File file;
+    private String nomeFoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +63,7 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
         super.onCreate(savedInstanceState);
 
         // Coloca um efeito antes de mostrar a tela principal
-        overridePendingTransition(R.anim.zoom_in_enter,R.anim.push_left_exit);
+        overridePendingTransition(R.anim.push_left_enter,R.anim.push_left_exit);
         setContentView(R.layout.activity_perfil_assinatura);
 
         // mostra o logo do app na actionbar
@@ -82,15 +82,12 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
             }
         }
 
-        imageAssinatura = (ImageView)findViewById(R.id.imageAssinatura);
-        dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        imageFoto = (ImageView)findViewById(R.id.imageAssinatura);
 
-        data = new Date();
+        //Get Date to rename Photo
+        date = new Date() ;
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss") ;
 
-        cal = Calendar.getInstance();
-        cal.setTime(data);
-        data_atual = cal.getTime();
-        //String data_completa = dateFormat.format(data_atual);
 
         /****************************************************************************************/
         /**                     Implementação do ExpadableListView                             */
@@ -175,7 +172,7 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         if (savedInstanceState == null) {
-           // selectItemLeft(0);
+            //selectItemLeft(0);
         }
 
     }
@@ -294,42 +291,52 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosCadastVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 5) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosVisualVisitaTecActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 6) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosCadastAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 7) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosVisualAuditoriaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 8) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosCadastCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 9) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,RelatoriosVisualCheckListActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 10) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PrestacaoContasInserirActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 11) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PrestacaoContasVerActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 12) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PerfilAlterarFotoActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);
+
         }else if (position == 13) {
-            /*Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PerfilAlterarAssinaturaActivity.class);
+           /* Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PerfilAlterarAssinaturaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
             startActivity(intent);*/
+
         }else if (position == 14) {
             Intent intent = new Intent(PerfilAlterarAssinaturaActivity.this,PerfilAlterarSenhaActivity.class);
             intent.putExtra("usuarioLogado",usuarioLogado);
@@ -368,12 +375,12 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-
     /*******************************************************************************************/
     /**                  Method to teka an image from CAMERA                                  */
     /*****************************************************************************************/
-    public void callIntentSignatureCam(View view){
-        File file = new File(android.os.Environment.getExternalStorageDirectory(), "signature"+data_atual.toString()+".png");
+    public void callIntentImgCam(View view){
+        nomeFoto = "DCIM/Camera/signature_"+dateFormat.format(date).toString()+".png";
+        File file = new File(android.os.Environment.getExternalStorageDirectory(), nomeFoto);
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
@@ -383,7 +390,7 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
     /*******************************************************************************************/
     /**                  Method to teka an image from SDCARD                                         */
     /*****************************************************************************************/
-    public void callIntentSignatureSDCard(View view){
+    public void callIntentImgSDCard(View view){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
         startActivityForResult(intent, IMG_SDCARD);
@@ -405,21 +412,21 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
 
             file = new File(imgString);
             if(file != null){
-                usuarioLogado.setResizedBitmapSignature(file, 300, 300);
+                usuarioLogado.setResizedBitmapPhoto(file, 300, 300);
                 usuarioLogado.setMimeFromImgPath(file.getPath());
             }
         }
         else if(requestCode == IMG_CAM && resultCode == RESULT_OK){
-            file = new File(android.os.Environment.getExternalStorageDirectory(), "signature"+data_atual.toString()+".png");
+            file = new File(android.os.Environment.getExternalStorageDirectory(), nomeFoto);
             if(file != null){
-                usuarioLogado.setResizedBitmapSignature(file, 300, 300);
+                usuarioLogado.setResizedBitmapPhoto(file, 300, 300);
                 usuarioLogado.setMimeFromImgPath(file.getPath());
             }
         }
 
 
-        if(usuarioLogado.getBitmapSignature() != null){
-            imageAssinatura.setImageBitmap(usuarioLogado.getBitmapSignature());
+        if(usuarioLogado.getBitmapPhoto() != null){
+            imageFoto.setImageBitmap(usuarioLogado.getBitmapPhoto());
         }
     }
     /*******************************************************************************************/
@@ -430,10 +437,10 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
         ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
         valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
         valores.add(new BasicNameValuePair("img-mime", usuarioLogado.getMime()));
-        valores.add(new BasicNameValuePair("img-image", usuarioLogado.getBitmapBase64Signature()));
+        valores.add(new BasicNameValuePair("img-image", usuarioLogado.getBitmapBase64Photo()));
 
-        StoreSignature storeSignature = new StoreSignature(this);
-        storeSignature.execute(valores);
+        StorePhoto storePhoto = new StorePhoto(this);
+        storePhoto.execute(valores);
 
     }
 
@@ -441,11 +448,11 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
     /*******************************************************************************************/
     /**                   Class to make insert event in system                               */
     /*****************************************************************************************/
-    private class StoreSignature extends AsyncTask<ArrayList<NameValuePair>,Void,String> {
+    private class StorePhoto extends AsyncTask<ArrayList<NameValuePair>,Void,String> {
         Context context;
         private ProgressDialog progress;
 
-        public StoreSignature(Context context) {
+        public StorePhoto(Context context) {
             this.context = context;
         }
 
@@ -520,5 +527,6 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
             }
         }.start();
     }
+
 
 }

@@ -40,13 +40,14 @@
             android:textColor="#ffffff" />
 
         <ImageView
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="350dp"
+            android:layout_height="350dp"
             android:id="@+id/imageFoto"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="50dp"
             android:src="@drawable/ic_android"
-            android:scaleType="fitXY" />
+            android:scaleType="fitXY"
+            android:onClick="callIntentImgSDCard"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,7 +69,8 @@
                     android:id="@+id/btnCamera"
                     android:layout_weight="1"
                     android:background="@drawable/botao_vermelho"
-                    android:onClick="callIntentImgCam" />
+                    android:onClick="callIntentImgCam"
+                    android:visibility="gone"/>
                 <View
                     android:layout_width="2dp"
                     android:layout_height="10dp">
@@ -82,7 +84,8 @@
                     android:id="@+id/btnSdcard"
                     android:layout_weight="1"
                     android:background="@drawable/botao_vermelho"
-                    android:onClick="callIntentImgSDCard" />
+                    android:onClick="callIntentImgSDCard"
+                    android:visibility="gone"/>
             </LinearLayout>
 
             <RelativeLayout

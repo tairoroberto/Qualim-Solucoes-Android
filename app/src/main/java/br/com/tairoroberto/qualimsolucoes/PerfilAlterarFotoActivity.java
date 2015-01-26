@@ -32,7 +32,6 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 import br.com.tairoroberto.adapters.AdapterExpListview;
@@ -53,9 +52,10 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     private static final int IMG_CAM = 1;
     private static final int IMG_SDCARD = 2;
     private ImageView imageFoto;
+    private Date date;
     private SimpleDateFormat dateFormat;
-    private Date data, data_atual;
-    private Calendar cal;
+    private File file;
+    private String nomeFoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,14 +84,9 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
 
         imageFoto = (ImageView)findViewById(R.id.imageFoto);
 
-        dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-
-        data = new Date();
-
-        cal = Calendar.getInstance();
-        cal.setTime(data);
-        data_atual = cal.getTime();
-        //String data_completa = dateFormat.format(data_atual);
+        //Get Date to rename Photo
+        date = new Date() ;
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss") ;
 
         /****************************************************************************************/
         /**                     Implementação do ExpadableListView                             */
@@ -383,8 +378,8 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     /**                  Method to teka an image from CAMERA                                  */
     /*****************************************************************************************/
     public void callIntentImgCam(View view){
-
-        File file = new File(android.os.Environment.getExternalStorageDirectory(), "image"+data_atual.toString()+".png");
+        nomeFoto = "DCIM/Camera/img"+dateFormat.format(date).toString()+".png";
+        File file = new File(android.os.Environment.getExternalStorageDirectory(), nomeFoto);
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
@@ -392,7 +387,7 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
     }
 
     /*******************************************************************************************/
-    /**                  Method to teka an image from SDCARD                                         */
+    /**                  Method to teka an image from SDCARD                                  */
     /*****************************************************************************************/
     public void callIntentImgSDCard(View view){
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -421,7 +416,7 @@ public class PerfilAlterarFotoActivity extends ActionBarActivity{
             }
         }
         else if(requestCode == IMG_CAM && resultCode == RESULT_OK){
-            file = new File(android.os.Environment.getExternalStorageDirectory(), "image"+data_atual.toString()+".png");
+            file = new File(android.os.Environment.getExternalStorageDirectory(), nomeFoto);
             if(file != null){
                 usuarioLogado.setResizedBitmapPhoto(file, 300, 300);
                 usuarioLogado.setMimeFromImgPath(file.getPath());
