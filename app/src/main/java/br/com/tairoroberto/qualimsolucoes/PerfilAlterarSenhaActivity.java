@@ -2,8 +2,11 @@ package br.com.tairoroberto.qualimsolucoes;
 
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
@@ -40,6 +44,7 @@ public class PerfilAlterarSenhaActivity extends ActionBarActivity{
     private String answer;
     private SearchView searchView;
     UsuarioLogado usuarioLogado = new UsuarioLogado();
+    private static final String PREF_NAME = "InicialActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -351,6 +356,78 @@ public class PerfilAlterarSenhaActivity extends ActionBarActivity{
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
+
+    /*******************************************************************************************/
+    /**                  Method to send Password to system                                    */
+    /*****************************************************************************************/
+
+    public void sendServer(View view){
+        EditText senha = (EditText)findViewById(R.id.edtSenha);
+        EditText senhaConfirmation = (EditText)findViewById(R.id.edtSenhaComfirma);
+        ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+        valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
+        valores.add(new BasicNameValuePair("senha", senha.getText().toString()));
+        valores.add(new BasicNameValuePair("senha_confirmation",senhaConfirmation.getText().toString()));
+
+        if (senha.getText().toString().equals("") || senhaConfirmation.getText().toString().equals("")){
+            Toast.makeText(this, "Insira uma senha...!!!", Toast.LENGTH_LONG).show();
+        }else if (!senha.getText().toString().equals(senhaConfirmation.getText().toString())){
+            Toast.makeText(this, "As senhas devem ser iguais...!", Toast.LENGTH_LONG).show();
+        }else{
+            ChangePassword changePassword = new ChangePassword(this);
+            changePassword.execute(valores);
+        }
+    }
+
+
+    /*******************************************************************************************/
+    /**                   Class to make insert event in system                               */
+    /*****************************************************************************************/
+    private class ChangePassword extends AsyncTask<ArrayList<NameValuePair>,Void,String> {
+        Context context;
+        private ProgressDialog progress;
+
+        public ChangePassword(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(context);
+            progress.setMessage("Alterando senha...");
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(ArrayList<NameValuePair>... params) {
+            final String url = "http://www.nowsolucoes.com.br/qualim/public/change-password-android";
+            answer = HttpConnection.getSetDataWeb(url, params[0]);
+            return answer;
+        }
+
+        @Override
+        protected void onPostExecute(String answer) {
+            super.onPostExecute(answer);
+            //Log.i("Script","Resposta do servidor: "+answer);
+            progress.dismiss();
+            if (answer.equals("Saved")){
+                //store login and password in sharedPreferences
+                /** In this mode, we can acess this sharedpreference in all Activities and Fragments*/
+                SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME,MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.commit();
+                Toast.makeText(context, "Senha Alterada com sucesso...!!!", Toast.LENGTH_LONG).show();
+                Log.i("Script","Resposta servidor: "+answer);
+
+            }else{
+                Toast.makeText(context, "Senha não Alterada..!!!", Toast.LENGTH_LONG).show();
+                Log.i("Script","Resposta servidor: "+answer);
+            }
+        }
+    }
+
 
     /*******************************************************************************************/
     /**                  Method to make logout in system                                      */

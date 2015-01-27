@@ -434,19 +434,23 @@ public class PerfilAlterarAssinaturaActivity extends ActionBarActivity{
     /*****************************************************************************************/
 
     public void sendServer(View view){
-        ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
-        valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
-        valores.add(new BasicNameValuePair("img-mime", usuarioLogado.getMime()));
-        valores.add(new BasicNameValuePair("img-image", usuarioLogado.getBitmapBase64Photo()));
+        if (usuarioLogado.getBitmapPhoto() != null){
+            ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+            valores.add(new BasicNameValuePair("nutricionista_id", usuarioLogado.getId()+""));
+            valores.add(new BasicNameValuePair("img-mime", usuarioLogado.getMime()));
+            valores.add(new BasicNameValuePair("img-image", usuarioLogado.getBitmapBase64Photo()));
 
-        StorePhoto storePhoto = new StorePhoto(this);
-        storePhoto.execute(valores);
-
+            StorePhoto storePhoto = new StorePhoto(this);
+            storePhoto.execute(valores);
+        }else{
+            Toast.makeText(this, "Selecione uma imagem antes de enviar...!", Toast.LENGTH_LONG).show();
+            callIntentImgSDCard(null);
+        }
     }
 
 
     /*******************************************************************************************/
-    /**                   Class to make insert event in system                               */
+    /**                   Class to make insert event in system                                */
     /*****************************************************************************************/
     private class StorePhoto extends AsyncTask<ArrayList<NameValuePair>,Void,String> {
         Context context;

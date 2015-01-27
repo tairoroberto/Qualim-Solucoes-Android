@@ -3,8 +3,11 @@ package br.com.tairoroberto.qualimsolucoes;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +36,10 @@ public class InicialActivity extends Activity {
     private UsuarioLogado usuarioLogado;
     private String answer;
     ProgressDialog progress;
+    private static final String PREF_NAME = "InicialActivity";
+    private Dialog dialog;
+    String email = "";
+    String password = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +59,7 @@ public class InicialActivity extends Activity {
         /**  Mostrar um DialogFrafment para ser inserido o endereço so website  */
         /***********************************************************************/
 
-        final Dialog dialog = new Dialog(InicialActivity.this);
+        dialog = new Dialog(InicialActivity.this);
 
         /** inflando o layout pra criação do DialogFragment*/
         dialog.setContentView(R.layout.fragment_login);
@@ -75,6 +82,15 @@ public class InicialActivity extends Activity {
         dialog.setTitle(R.string.txtMensagemLogin);
         dialog.show();
 
+        /** In this mode, we can acess this sharedpreference in all Activities and Fragments*/
+        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME,MODE_PRIVATE);
+        email = sharedPreferences.getString("email","");
+        password = sharedPreferences.getString("password","");
+        String passwordRegex[] = password.split("!");
+
+        edtUsuarioLogin.setText(email);
+        edtSenhaLogin.setText(passwordRegex[0]);
+
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
@@ -90,7 +106,31 @@ public class InicialActivity extends Activity {
             public void onClick(View v) {
 
                 //Enviaa requisição para o servidor
-                sendLogin(edtUsuarioLogin.getText().toString(),edtSenhaLogin.getText().toString(),dialog);
+                ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+                valores.add(new BasicNameValuePair("email", edtUsuarioLogin.getText().toString()));
+                valores.add(new BasicNameValuePair("password", edtSenhaLogin.getText().toString()));
+
+                //verify if saved password an email
+                if (ckRememberFragment.isChecked()){
+                    //store login and password in sharedPreferences
+                    /** In this mode, we can acess this sharedpreference in all Activities and Fragments*/
+                    SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME,MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("email",edtUsuarioLogin.getText().toString());
+                    editor.putString("password", edtSenhaLogin.getText().toString() + "!1_2Dgg3+3wfat@887S!.*_09@!bheff&675#vfojjdl^");
+                    editor.commit();
+
+                }else{
+                    //store login and password in sharedPreferences
+                    /** In this mode, we can acess this sharedpreference in all Activities and Fragments*/
+                    SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME,MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.clear();
+                    editor.commit();
+                }
+
+                SendLogin sendLogin = new SendLogin(InicialActivity.this);
+                sendLogin.execute(valores);
             }
         });
 
@@ -106,58 +146,60 @@ public class InicialActivity extends Activity {
 
     }
 
-    public void sendLogin(final String email,final String password, final Dialog dialog){
-        progress = new ProgressDialog(InicialActivity.this);
-        progress.setMessage("Conectando...");
-        progress.show();
 
-        final String url = "http://www.nowsolucoes.com.br/qualim/public/login-android";
+    /*******************************************************************************************/
+    /**                   Class to make insert event in system                               */
+    /*****************************************************************************************/
+    private class SendLogin extends AsyncTask<ArrayList<NameValuePair>,Void,String> {
+        Context context;
+        private ProgressDialog progress;
 
-        new Thread(){
-            public void run(){
+        public SendLogin(Context context) {
+            this.context = context;
+        }
 
-                ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
-                valores.add(new BasicNameValuePair("email", email));
-                valores.add(new BasicNameValuePair("password", password));
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progress = new ProgressDialog(context);
+            progress.setMessage("Carregando...");
+            progress.show();
+        }
 
-                answer = HttpConnection.getSetDataWeb(url, valores);
+        @Override
+        protected String doInBackground(ArrayList<NameValuePair>... params) {
+            final String url = "http://www.nowsolucoes.com.br/qualim/public/login-android";
+            answer = HttpConnection.getSetDataWeb(url, params[0]);
+            return answer;
+        }
 
-                runOnUiThread(new Runnable(){
-                    public void run(){
-                        try{
-                            if (answer != null){
-                                if (!answer.equals("Login incorreto")){
+        @Override
+        protected void onPostExecute(String answer) {
+            super.onPostExecute(answer);
+            //Log.i("Script","Resposta do servidor: "+answer);
+            if (!answer.equals("Login incorreto")){
+                progress.dismiss();
+                //Log.i("Script","Resposta: "+answer);
 
-                                    progress.dismiss();
-                                    //Log.i("Script","Resposta: "+answer);
+                String resposta[] = answer.split(",");
+                usuarioLogado.setId(Long.parseLong(resposta[0]));
+                usuarioLogado.setName(resposta[1]);
+                usuarioLogado.setEmail(resposta[2]);
 
-                                    String resposta[] = answer.split(",");
-                                    usuarioLogado.setId(Long.parseLong(resposta[0]));
-                                    usuarioLogado.setName(resposta[1]);
-                                    usuarioLogado.setEmail(resposta[2]);
+                Intent intent = new Intent();
+                intent.setClass(InicialActivity.this, PrincipalActivity.class);
+                intent.putExtra("usuarioLogado",usuarioLogado);
+                overridePendingTransition(R.anim.push_down_enter, R.anim.push_down_exit);
 
-                                    /*//ArrayList de Usuarios logados para ser enviado
-                                    ArrayList<UsuarioLogado> usuarioLogados = new ArrayList<UsuarioLogado>();
-                                    usuarioLogados.add(usuarioLogado);*/
+                startActivity(intent);
+                dialog.dismiss();
+                InicialActivity.this.finish();
 
-                                    Intent intent = new Intent();
-                                    intent.setClass(InicialActivity.this, PrincipalActivity.class);
-                                    intent.putExtra("usuarioLogado",usuarioLogado);
-                                    overridePendingTransition(R.anim.push_down_enter, R.anim.push_down_exit);
-                                    startActivity(intent);
-                                    dialog.dismiss();
-                                    InicialActivity.this.finish();
-
-                                }else{
-                                    progress.dismiss();
-                                    Toast.makeText(InicialActivity.this, "Login ou Senha inválido", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }
-                        catch(NumberFormatException e){ e.printStackTrace(); }
-                    }
-                });
+            }else{
+                progress.dismiss();
+                Toast.makeText(InicialActivity.this, "Login ou Senha inválido", Toast.LENGTH_SHORT).show();
+                Log.i("Script","Resposta servidor: "+answer);
             }
-        }.start();
+        }
     }
 }
