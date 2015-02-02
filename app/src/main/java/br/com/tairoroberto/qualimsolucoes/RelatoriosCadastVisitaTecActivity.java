@@ -15,6 +15,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
@@ -61,6 +65,24 @@ public class RelatoriosCadastVisitaTecActivity extends ActionBarActivity{
                 usuarioLogado = bundle.getParcelable("usuarioLogado");
             }
         }
+
+        WebView webView = (WebView)findViewById(R.id.webView);
+
+        //configura o webSetings
+        WebSettings settings = webView.getSettings();
+        settings.setSupportZoom(false);
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                return super.onJsAlert(view, url, message, result);
+            }
+        });
+
+        //para acessa rum pagina
+        String url = "http://nowsolucoes.com.br/qualim/public/relatorio-visita-tecnica-cad-android?nutricionista_id="+usuarioLogado.getId();
+        webView.loadUrl(url);
 
 
 
@@ -347,12 +369,18 @@ public class RelatoriosCadastVisitaTecActivity extends ActionBarActivity{
         mDrawerToggle.syncState();
     }
 
+    /**********************************************************************************************************/
+    /**                              method to force landscape  in activity                                  */
+    /*********************************************************************************************************/
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
+
+
 
     /*******************************************************************************************/
     /**                  Method to make logout in system                                      */

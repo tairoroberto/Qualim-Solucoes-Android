@@ -53,16 +53,10 @@
                 android:layout_gravity="center_vertical" />
         </LinearLayout>
 
-        <EditText
+        <WebView
             android:layout_width="match_parent"
-            android:layout_height="96dp"
-            android:ems="10"
-            android:id="@+id/edtRelatorioVisitaTec"
-            android:hint="Relatótio..."
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:inputType="textAutoComplete|textMultiLine"
-            android:layout_weight="0.34" />
+            android:layout_height="match_parent"
+            android:id="@+id/webView" />
 
     </LinearLayout>
 
