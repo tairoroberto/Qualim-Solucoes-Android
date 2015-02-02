@@ -27,91 +27,43 @@
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal" >
-
-
-            <ViewFlipper
-                android:id="@+id/img1"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
-                android:layout_weight="2"
-                android:background="#10B5FF"
-                android:scaleType="fitXY" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Relatorio Cadastra visita tecnica"
-                    android:id="@+id/textView5" />
-            </ViewFlipper>
-
-            <ViewFlipper
-                android:id="@+id/img2"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:background="#DFF43C"
-                android:scaleType="fitXY" />
-        </LinearLayout>
+        android:orientation="vertical"
+        android:weightSum="1">
 
         <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal" >
+            android:layout_height="wrap_content">
 
-            <ViewFlipper
-                android:id="@+id/img3"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:background="#FF3C"
-                android:scaleType="fitXY" />
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:id="@+id/imageView2"
+                android:src="@drawable/ic_logo"
+                android:scaleType="centerCrop" />
 
-            <ViewFlipper
-                android:id="@+id/img4"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
-                android:layout_weight="2"
-                android:background="#00BFFF"
-                android:scaleType="fitXY" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Relatório de visita técnica"
+                android:id="@+id/textView5"
+                android:gravity="center_horizontal"
+                android:textColor="#ffffff"
+                android:textSize="22sp"
+                android:layout_gravity="center_vertical" />
         </LinearLayout>
 
-        <LinearLayout
+        <EditText
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal" >
+            android:layout_height="96dp"
+            android:ems="10"
+            android:id="@+id/edtRelatorioVisitaTec"
+            android:hint="Relatótio..."
+            android:textColor="#ffffff"
+            android:textColorHint="#ffffff"
+            android:inputType="textAutoComplete|textMultiLine"
+            android:layout_weight="0.34" />
 
-            <ViewFlipper
-                android:id="@+id/img5"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:background="#00FFFF"
-                android:scaleType="fitXY" >
-
-            </ViewFlipper>
-
-            <ViewFlipper
-                android:id="@+id/img6"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
-                android:layout_weight="1"
-                android:background="#DC143C"
-                android:scaleType="fitXY" />
-        </LinearLayout>
     </LinearLayout>
 
     <!-- android:layout_gravity="start" tells DrawerLayout to treat
